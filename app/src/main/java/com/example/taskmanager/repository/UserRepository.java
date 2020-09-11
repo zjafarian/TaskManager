@@ -16,6 +16,22 @@ public class UserRepository implements IRepositoryUser {
         return mUserList;
     }
 
+    public void setUserList(List<User> userList) {
+        mUserList = userList;
+    }
+
+    public static UserRepository getInstance() {
+        if (sInstance == null)
+            sInstance = new UserRepository();
+        return sInstance;
+    }
+
+    public static void setInstance(UserRepository instance) {
+        sInstance = instance;
+    }
+
+
+
     @Override
     public User getUser(UUID userId) {
         for (User user: mUserList) {
@@ -32,33 +48,24 @@ public class UserRepository implements IRepositoryUser {
     }
 
     @Override
-    public void updateUser(User user) {
-        User findUser = getUser(user.getIDUser());
-
-    }
-
-    @Override
     public void deleteUser(User user) {
+        for (int i = 0; i < mUserList.size(); i++) {
+            if (mUserList.get(i).getIDUser().equals(user.getIDUser())) {
+                mUserList.remove(i);
+                return;
+            }
+        }
 
     }
 
     @Override
     public int getPosition(UUID userId) {
+        for (int i = 0; i < mUserList.size(); i++) {
+            if (mUserList.get(i).getIDUser().equals(userId))
+                return i;
+        }
+
         return 0;
-    }
-
-    public void setUserList(List<User> userList) {
-        mUserList = userList;
-    }
-
-    public static UserRepository getInstance() {
-        if (sInstance == null)
-            sInstance = new UserRepository();
-        return sInstance;
-    }
-
-    public static void setInstance(UserRepository instance) {
-        sInstance = instance;
     }
 
 

@@ -9,7 +9,6 @@ public interface IRepositoryUser {
     List<User> getUserList();
     User getUser(UUID userId);
     void insertUser(User user);
-    void updateUser(User user);
     void deleteUser(User user);
     int getPosition(UUID userId);
 
