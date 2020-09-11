@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
@@ -31,10 +32,11 @@ import java.util.List;
 import static com.example.taskmanager.controller.activity.LoginActivity.EXTRA_REPOSITORY_USER_LOGIN;
 
 public class LoginFragment extends Fragment {
-    public static final String EXTERA_USER_NAME = "com.example.taskmanager.UserName";
-    public static final String EXTERA_PASSWORD = "com.example.taskmanager.Password";
     public static final int REQUEST_CODE_SIGNUP = 0;
     public static final String ARGS_REPOSITORY_USER_LOGIN = "args_repository_user_login";
+    public static final String SAVE_USER_NAME_LOGIN = "saveUserNameLogin";
+    public static final String SAVE_PASSWORD_LOGIN = "savePasswordLogin";
+    public static final String SAVE_REPOSITORY_USER_LOGIN = "saveRepositoryUserLogin";
 
     private Button mButton_logIn;
     private Button mButton_signUp;
@@ -76,6 +78,14 @@ public class LoginFragment extends Fragment {
         mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_LOGIN);
         mUsers = mRepositoryUser.getUserList();
 
+        //Handel saveInstance
+        if (savedInstanceState !=null){
+            username = savedInstanceState.getString(SAVE_USER_NAME_LOGIN);
+            password = savedInstanceState.getString(SAVE_PASSWORD_LOGIN);
+            mRepositoryUser = (IRepositoryUser) savedInstanceState.getSerializable(SAVE_REPOSITORY_USER_LOGIN);
+            mUsers = mRepositoryUser.getUserList();
+        }
+
     }
 
     @Override
@@ -84,10 +94,39 @@ public class LoginFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         setId(view);
+        initViews();
+        if (savedInstanceState!=null){
+            initViews();
+        }
         setListener();
         return view;
     }
 
+    private void initViews() {
+        mUsernameLogin.setText(username);
+        mPasswordLogin.setText(password);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+        if (requestCode == REQUEST_CODE_SIGNUP) {
+            mRepositoryUser = (IRepositoryUser) data.getSerializableExtra(EXTRA_REPOSITORY_USER_LOGIN);
+            mUsers = mRepositoryUser.getUserList();
+
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SAVE_USER_NAME_LOGIN,username);
+        outState.putString(SAVE_PASSWORD_LOGIN,password);
+        outState.putSerializable(SAVE_REPOSITORY_USER_LOGIN,mRepositoryUser);
+    }
 
     private void setId(View view) {
         mUsernameLoginForm = view.findViewById(R.id.username_login_form);
@@ -137,17 +176,5 @@ public class LoginFragment extends Fragment {
 
             }
         });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != Activity.RESULT_OK || data == null)
-            return;
-        if (requestCode == REQUEST_CODE_SIGNUP) {
-            mRepositoryUser = (IRepositoryUser) data.getSerializableExtra(EXTRA_REPOSITORY_USER_LOGIN);
-            mUsers = mRepositoryUser.getUserList();
-
-        }
     }
 }
