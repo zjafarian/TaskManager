@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.taskmanager.R;
 import com.example.taskmanager.controller.activity.LoginActivity;
 import com.example.taskmanager.controller.activity.SignUpActivity;
+import com.example.taskmanager.controller.activity.TaskListActivity;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
@@ -40,13 +41,10 @@ public class LoginFragment extends Fragment {
 
     private Button mButton_logIn;
     private Button mButton_signUp;
-    private TextInputLayout mUsernameLoginForm;
-    private TextInputLayout mPasswordLoginForm;
     private TextInputEditText mUsernameLogin;
     private TextInputEditText mPasswordLogin;
     private String username;
     private String password;
-    private boolean check = false;
     private IRepositoryUser mRepositoryUser;
     private List<User> mUsers;
 
@@ -129,8 +127,6 @@ public class LoginFragment extends Fragment {
     }
 
     private void setId(View view) {
-        mUsernameLoginForm = view.findViewById(R.id.username_login_form);
-        mPasswordLoginForm = view.findViewById(R.id.password_login_form);
         mUsernameLogin = view.findViewById(R.id.username_login);
         mPasswordLogin = view.findViewById(R.id.password_login);
         mButton_logIn = view.findViewById(R.id.btn_login);
@@ -156,8 +152,8 @@ public class LoginFragment extends Fragment {
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
                     } else {
-
-
+                        //Intent intent = TaskListActivity.newIntent(getActivity(), mRepositoryUser, username,password);
+                        //startActivity(intent);
                     }
 
                 }
