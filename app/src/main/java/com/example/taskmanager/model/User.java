@@ -7,10 +7,12 @@ public class User {
     private String mPassword;
     private UUID mIDUser;
 
-
-    public User() {
+    public User(String username, String password) {
         mIDUser = UUID.randomUUID();
+        mUsername = username;
+        mPassword = password;
     }
+
 
     public String getUsername() {
         return mUsername;
