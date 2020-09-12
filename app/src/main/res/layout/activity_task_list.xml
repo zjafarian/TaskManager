@@ -23,7 +23,17 @@
         android:id="@+id/view_pager_state_task"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1" >
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:margin="20dp"
+        android:text="+"
+        android:text_size="20dp"/>
 
 
 </LinearLayout>

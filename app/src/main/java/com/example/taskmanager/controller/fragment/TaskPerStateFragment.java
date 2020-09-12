@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.taskmanager.R;
+import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
@@ -25,10 +26,12 @@ import java.util.List;
 
 
 public class TaskPerStateFragment extends Fragment {
+    public static final String ARGS_STATE = "argsState";
     private RecyclerView mRecyclerView;
     private IRepositoryTask mRepositoryTask;
     private User mUser;
     private List<Task> mTasks;
+    private State mState;
 
 
     public TaskPerStateFragment() {
@@ -36,10 +39,10 @@ public class TaskPerStateFragment extends Fragment {
     }
 
 
-    public static TaskPerStateFragment newInstance() {
+    public static TaskPerStateFragment newInstance(State state) {
         TaskPerStateFragment fragment = new TaskPerStateFragment();
         Bundle args = new Bundle();
-
+        args.putSerializable(ARGS_STATE,state);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,7 +50,12 @@ public class TaskPerStateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         mRepositoryTask = TaskRepository.getInstance();
+
+        //this is storage of this fragment
+        mState = (State) getArguments().getSerializable(ARGS_STATE);
 
 
     }
