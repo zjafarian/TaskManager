@@ -1,7 +1,10 @@
 package com.example.taskmanager.controller.fragment;
 
+import android.app.Dialog;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import android.view.LayoutInflater;
@@ -32,11 +35,13 @@ public class CreateTaskFragment extends DialogFragment {
 
     }
 
+
+
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_create_task, container, false);
-        return view;
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View view = inflater.inflate(R.layout.fragment_create_task, null);
+        return null;
     }
 }

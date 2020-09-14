@@ -99,6 +99,7 @@ public class TaskPerStateFragment extends Fragment {
         }
 
         public void bindTask(Task task) {
+
             mTask = task;
             mTitleTask.setText(task.getTitleTask());
             mDateTask.setText(task.getDateTask().toString());

@@ -29,6 +29,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.taskmanager.controller.activity.LoginActivity.EXTRA_REPOSITORY_USER_LOGIN;
 
@@ -38,7 +39,8 @@ public class LoginFragment extends Fragment {
     public static final String SAVE_USER_NAME_LOGIN = "saveUserNameLogin";
     public static final String SAVE_PASSWORD_LOGIN = "savePasswordLogin";
     public static final String SAVE_REPOSITORY_USER_LOGIN = "saveRepositoryUserLogin";
-
+    public static final String ARGS_ID_USER = "argsIdUser";
+    public static final String SAVE_ID_USER = "save_id_user";
     private Button mButton_logIn;
     private Button mButton_signUp;
     private TextInputEditText mUsernameLogin;
@@ -47,6 +49,7 @@ public class LoginFragment extends Fragment {
     private String password;
     private IRepositoryUser mRepositoryUser;
     private List<User> mUsers;
+    private UUID mUserId;
 
 
     public LoginFragment() {
@@ -54,10 +57,12 @@ public class LoginFragment extends Fragment {
     }
 
 
-    public static LoginFragment newInstance(IRepositoryUser repositoryUser) {
+    public static LoginFragment newInstance(IRepositoryUser repositoryUser, UUID id) {
         LoginFragment fragment = new LoginFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARGS_REPOSITORY_USER_LOGIN, repositoryUser);
+        args.putSerializable(ARGS_ID_USER,id);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,7 +79,15 @@ public class LoginFragment extends Fragment {
 
         //this is storage of this fragment
         mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_LOGIN);
+        mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
         mUsers = mRepositoryUser.getUserList();
+        for (User user1:mUsers) {
+            if (user1.getIDUser().equals(mUserId)){
+                username= user1.getUsername();
+                password = user1.getPassword();
+            }
+
+        }
 
         //Handel saveInstance
         if (savedInstanceState !=null){
@@ -82,6 +95,15 @@ public class LoginFragment extends Fragment {
             password = savedInstanceState.getString(SAVE_PASSWORD_LOGIN);
             mRepositoryUser = (IRepositoryUser) savedInstanceState.getSerializable(SAVE_REPOSITORY_USER_LOGIN);
             mUsers = mRepositoryUser.getUserList();
+            mUserId = (UUID) savedInstanceState.getSerializable(SAVE_ID_USER);
+            for (User user1:mUsers) {
+                if (user1.getIDUser().equals(mUserId)){
+                    username= user1.getUsername();
+                    password = user1.getPassword();
+                }
+
+            }
+
         }
 
     }
@@ -124,6 +146,7 @@ public class LoginFragment extends Fragment {
         outState.putString(SAVE_USER_NAME_LOGIN,username);
         outState.putString(SAVE_PASSWORD_LOGIN,password);
         outState.putSerializable(SAVE_REPOSITORY_USER_LOGIN,mRepositoryUser);
+        outState.putSerializable(SAVE_ID_USER,mUserId);
     }
 
     private void setId(View view) {
@@ -173,4 +196,6 @@ public class LoginFragment extends Fragment {
             }
         });
     }
+
+
 }

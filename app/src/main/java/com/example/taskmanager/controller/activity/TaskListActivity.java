@@ -35,6 +35,8 @@ public class TaskListActivity extends AppCompatActivity {
     private IRepositoryTask mRepositoryTask;
     private int currentIndex;
     private Button mButtonAdd;
+    private Button mButtonLogout;
+    private Button mButtonDeleteAllTasks;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +63,8 @@ public class TaskListActivity extends AppCompatActivity {
         mViewPager = findViewById(R.id.view_pager_state_task);
         mTextUserName = findViewById(R.id.text_user_name);
         mButtonAdd = findViewById(R.id.btn_add);
+        mButtonLogout =findViewById(R.id.btn_logout);
+        mButtonDeleteAllTasks = findViewById(R.id.btn_delete_all_tasks);
     }
 
     private void initViews() {
@@ -96,7 +100,7 @@ public class TaskListActivity extends AppCompatActivity {
         @Override
         public Fragment createFragment(int position) {
             State state = mStates.get(position);
-            TaskPerStateFragment stateFragment = TaskPerStateFragment.newInstance(state);
+            TaskPerStateFragment stateFragment = TaskPerStateFragment.newInstance(state,mRepositoryTask);
             return stateFragment;
         }
 

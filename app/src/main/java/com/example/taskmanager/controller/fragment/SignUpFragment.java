@@ -24,6 +24,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -44,6 +45,7 @@ public class SignUpFragment extends Fragment {
     private String password;
     private IRepositoryUser mRepositoryUser;
     private List<User> mUserList;
+    private UUID mUserId;
 
 
     public SignUpFragment() {
@@ -123,13 +125,15 @@ public class SignUpFragment extends Fragment {
                     toast.show();
                 } else {
                     User user = new User(username, password);
+                    mUserList.add(user);
                     mRepositoryUser.insertUser(user);
+                    mUserId = user.getIDUser();
+                    Intent intent = LoginActivity.newIntent(getActivity(), mRepositoryUser,mUserId);
+                    getActivity().setResult(RESULT_OK, intent);
                     username = "";
                     password = "";
                     mUserNameSignUp.setText(username);
                     mPasswordSignUp.setText(password);
-                    Intent intent = LoginActivity.newIntent(getActivity(), mRepositoryUser);
-                    getActivity().setResult(RESULT_OK, intent);
                     getActivity().finish();
 
                 }
