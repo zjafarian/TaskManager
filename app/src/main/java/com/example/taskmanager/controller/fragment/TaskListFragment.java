@@ -100,6 +100,16 @@ public class TaskListFragment extends Fragment {
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             setViews(itemView);
+            setListener(itemView);
+        }
+        private void setListener(@NonNull View itemView) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    EditTaskFragment editTaskFragment = EditTaskFragment.newInstance(mTask);
+
+                }
+            });
         }
 
         private void setViews(@NonNull View itemView) {
@@ -120,6 +130,8 @@ public class TaskListFragment extends Fragment {
 
 
     }
+
+
 
     private class TaskAdapter extends RecyclerView.Adapter<TaskListFragment.TaskHolder> {
         private List<Task> mTasks;

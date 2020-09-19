@@ -154,9 +154,29 @@ public class CreateTaskFragment extends DialogFragment {
             mDate = (Date) data.getSerializableExtra(DateFragment.EXTRA_USER_SELECTED_DATE);
         }
         if (requestCode==REQUEST_CODE_TIME_CREATE){
-            mTime = data.getSerializableExtra(TimeFragment.)
+            mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
         }
+        mDate = setCalender();
+        updateDateTask(mDate);
 
+    }
+
+    private Date setCalender(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mDate);
+        int year = calendar.get(Calendar.YEAR);
+        int monthOfYear = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        calendar.setTime(mTime);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        calendar.set(Calendar.YEAR,year);
+        calendar.set(Calendar.MONTH,monthOfYear);
+        calendar.set(Calendar.DAY_OF_MONTH,dayOfMonth);
+        calendar.set(Calendar.HOUR_OF_DAY,hour);
+        calendar.set(Calendar.MINUTE,minute);
+
+        return calendar.getTime();
     }
 
     private void updateDateTask(Date dateUserSelected) {
