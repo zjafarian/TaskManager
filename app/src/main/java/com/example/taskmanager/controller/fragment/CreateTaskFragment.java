@@ -93,7 +93,9 @@ public class CreateTaskFragment extends DialogFragment {
                 })
                 .setNegativeButton(android.R.string.cancel, null);
 
-        return null;
+        AlertDialog dialog =builder.create();
+
+        return dialog;
     }
 
     private void createTask() {
