@@ -2,10 +2,6 @@ package com.example.taskmanager.controller.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,20 +9,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.taskmanager.R;
 import com.example.taskmanager.controller.activity.LoginActivity;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryUser;
 import com.example.taskmanager.repository.UserRepository;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static android.app.Activity.RESULT_OK;
 
 public class SignUpFragment extends Fragment {
     public static final String SAVE_USER_NAME_SIGN_UP = "saveUserNameSignUp";
@@ -53,7 +48,8 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    public static SignUpFragment newInstance(IRepositoryUser repositoryUser, String username, String password) {
+    public static SignUpFragment newInstance(IRepositoryUser repositoryUser, String username,
+                                             String password) {
         SignUpFragment fragment = new SignUpFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARGS_REPOSITORY_USER_SING_UP, repositoryUser);
@@ -71,10 +67,13 @@ public class SignUpFragment extends Fragment {
         mUserList = mRepositoryUser.getUserList();
 
         //this is storage of this fragment
-        mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_SING_UP);
-        password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
-        username = getArguments().getString(ARGS_USERNAME_SING_UP);
-        mUserList = mRepositoryUser.getUserList();
+        if (getArguments() != null){
+            mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_SING_UP);
+            password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
+            username = getArguments().getString(ARGS_USERNAME_SING_UP);
+            mUserList = mRepositoryUser.getUserList();
+        }
+
 
         //Handel SaveInstance
         if (savedInstanceState != null) {
@@ -129,11 +128,7 @@ public class SignUpFragment extends Fragment {
                     mRepositoryUser.insertUser(user);
                     mUserId = user.getIDUser();
                     Intent intent = LoginActivity.newIntent(getActivity(), mRepositoryUser,mUserId);
-                    getActivity().setResult(RESULT_OK, intent);
-                    username = "";
-                    password = "";
-                    mUserNameSignUp.setText(username);
-                    mPasswordSignUp.setText(password);
+                    startActivity(intent);
                     getActivity().finish();
 
                 }

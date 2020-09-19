@@ -1,13 +1,7 @@
 package com.example.taskmanager.controller.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,23 +9,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.taskmanager.R;
-import com.example.taskmanager.controller.activity.LoginActivity;
 import com.example.taskmanager.controller.activity.SignUpActivity;
-import com.example.taskmanager.controller.activity.TaskListActivity;
+import com.example.taskmanager.controller.activity.TaskPagerActivity;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
+import com.example.taskmanager.repository.TaskRepository;
 import com.example.taskmanager.repository.UserRepository;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static com.example.taskmanager.controller.activity.LoginActivity.EXTRA_REPOSITORY_USER_LOGIN;
 
 public class LoginFragment extends Fragment {
     public static final int REQUEST_CODE_SIGNUP = 0;
@@ -48,7 +41,8 @@ public class LoginFragment extends Fragment {
     private String username;
     private String password;
     private IRepositoryUser mRepositoryUser;
-    private List<User> mUsers;
+    private IRepositoryTask mRepositoryTask;
+    private List<User> mUsers=new ArrayList<>();
     private UUID mUserId;
 
 
@@ -62,7 +56,6 @@ public class LoginFragment extends Fragment {
         Bundle args = new Bundle();
         args.putSerializable(ARGS_REPOSITORY_USER_LOGIN, repositoryUser);
         args.putSerializable(ARGS_ID_USER,id);
-
         fragment.setArguments(args);
         return fragment;
     }
@@ -70,30 +63,30 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUsers = new ArrayList<>();
         mRepositoryUser = UserRepository.getInstance();
+        mRepositoryTask = TaskRepository.getInstance();
         mUsers = mRepositoryUser.getUserList();
-        User user = new User("admin", "admin");
-        mUsers.add(user);
-        mRepositoryUser.insertUser(user);
 
         //this is storage of this fragment
-        mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_LOGIN);
-        mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
-        mUsers = mRepositoryUser.getUserList();
-        for (User user1:mUsers) {
-            if (user1.getIDUser().equals(mUserId)){
-                username= user1.getUsername();
-                password = user1.getPassword();
+        if (getArguments() != null) {
+            mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_LOGIN);
+            mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
+            for (User user1:mUsers) {
+                if (user1.getIDUser().equals(mUserId)){
+                    username= user1.getUsername();
+                    password = user1.getPassword();
+                }
             }
 
         }
+
 
         //Handel saveInstance
         if (savedInstanceState !=null){
             username = savedInstanceState.getString(SAVE_USER_NAME_LOGIN);
             password = savedInstanceState.getString(SAVE_PASSWORD_LOGIN);
-            mRepositoryUser = (IRepositoryUser) savedInstanceState.getSerializable(SAVE_REPOSITORY_USER_LOGIN);
+            mRepositoryUser = (IRepositoryUser)
+                    savedInstanceState.getSerializable(SAVE_REPOSITORY_USER_LOGIN);
             mUsers = mRepositoryUser.getUserList();
             mUserId = (UUID) savedInstanceState.getSerializable(SAVE_ID_USER);
             for (User user1:mUsers) {
@@ -101,7 +94,6 @@ public class LoginFragment extends Fragment {
                     username= user1.getUsername();
                     password = user1.getPassword();
                 }
-
             }
 
         }
@@ -127,18 +119,6 @@ public class LoginFragment extends Fragment {
         mPasswordLogin.setText(password);
     }
 
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != Activity.RESULT_OK || data == null)
-            return;
-        if (requestCode == REQUEST_CODE_SIGNUP) {
-            mRepositoryUser = (IRepositoryUser) data.getSerializableExtra(EXTRA_REPOSITORY_USER_LOGIN);
-            mUsers = mRepositoryUser.getUserList();
-
-        }
-    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -174,9 +154,21 @@ public class LoginFragment extends Fragment {
                                 Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
+                    } else if(user.equals("admin") || pass.equals("admin")){
+                        for (User userFind:mUsers) {
+                            if (userFind.getUsername().equals("admin") &&
+                                    userFind.getPassword().equals("admin"))
+                                mUserId = userFind.getIDUser();
+
+                        }
+                        Intent intent = TaskPagerActivity.newIntent(getActivity(),
+                                mRepositoryTask, mUserId );
+                        startActivity(intent);
                     } else {
-                        //Intent intent = TaskListActivity.newIntent(getActivity(), mRepositoryUser, username,password);
-                        //startActivity(intent);
+                        Intent intent = TaskPagerActivity.newIntent(getActivity(),
+                                mRepositoryTask, mUserId );
+                        startActivity(intent);
+
                     }
 
                 }
@@ -190,7 +182,8 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 username = mUsernameLogin.getText().toString();
                 password = mPasswordLogin.getText().toString();
-                Intent intent = SignUpActivity.newIntent(getActivity(), mRepositoryUser, username, password);
+                Intent intent = SignUpActivity.newIntent(getActivity(),
+                        mRepositoryUser, username, password);
                 startActivityForResult(intent, REQUEST_CODE_SIGNUP);
 
             }

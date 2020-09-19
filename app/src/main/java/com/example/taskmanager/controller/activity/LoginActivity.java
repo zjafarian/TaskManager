@@ -1,15 +1,11 @@
 package com.example.taskmanager.controller.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 
-import com.example.taskmanager.R;
+import androidx.fragment.app.Fragment;
+
 import com.example.taskmanager.controller.fragment.LoginFragment;
-import com.example.taskmanager.controller.fragment.SignUpFragment;
 import com.example.taskmanager.repository.IRepositoryUser;
 
 import java.util.UUID;
@@ -28,8 +24,10 @@ public class LoginActivity extends SingleFragmentActivity {
 
     @Override
     public Fragment createFragment() {
-        IRepositoryUser repositoryUser = (IRepositoryUser) getIntent().getSerializableExtra(EXTRA_REPOSITORY_USER_LOGIN);
+        IRepositoryUser repositoryUser ;
+        repositoryUser= (IRepositoryUser) getIntent().getSerializableExtra(EXTRA_REPOSITORY_USER_LOGIN);
         UUID id = (UUID) getIntent().getSerializableExtra(EXTRA_ID_USER);
+        
         LoginFragment loginFragment = LoginFragment.newInstance(repositoryUser, id);
         return loginFragment;
 

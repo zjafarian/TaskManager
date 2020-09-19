@@ -2,14 +2,17 @@ package com.example.taskmanager.repository;
 
 import com.example.taskmanager.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class UserRepository implements IRepositoryUser {
-    private List<User> mUserList;
+    private List<User> mUserList=new ArrayList<>();
     private static UserRepository sInstance;
 
     private UserRepository() {
+        User user = new User("admin","admin");
+        mUserList.add(user);
     }
 
     public List<User> getUserList() {

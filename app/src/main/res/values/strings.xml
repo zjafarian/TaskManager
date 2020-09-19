@@ -24,5 +24,6 @@
     <string name="text_todo">ToDo</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
+    <string name="title_dialog_create">Create Task</string>
 
 </resources>

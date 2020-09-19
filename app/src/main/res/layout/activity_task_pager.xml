@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".controller.activity.TaskListActivity"
+    tools:context=".controller.activity.TaskPagerActivity"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:text="Delete All Tasks"
             android:layout_toRightOf="@id/text_user_name"
-           />
+            />
 
     </RelativeLayout>
 
@@ -58,8 +58,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:text="+"
-        android:layout_gravity="right"
-        android:size_text="20dp"/>
-
+        android:layout_gravity="right"/>
 
 </LinearLayout>

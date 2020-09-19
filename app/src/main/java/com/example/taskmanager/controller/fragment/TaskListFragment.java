@@ -1,48 +1,53 @@
 package com.example.taskmanager.controller.fragment;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.taskmanager.R;
 import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
-import com.example.taskmanager.repository.IRepositoryUser;
 import com.example.taskmanager.repository.TaskRepository;
-import com.example.taskmanager.repository.UserRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 
-public class TaskPerStateFragment extends Fragment {
+public class TaskListFragment extends Fragment {
     public static final String ARGS_STATE = "argsState";
+    public static final String ARGS_TASK_REPOSITORY = "ArgsTaskRepository";
+    public static final String ARGS_ID_USER = "ArgsIdUser";
     private RecyclerView mRecyclerView;
     private IRepositoryTask mRepositoryTask;
     private User mUser;
     private List<Task> mTasks;
     private State mState;
+    private UUID mIdUser;
 
 
-    public TaskPerStateFragment() {
+    public TaskListFragment() {
         // Required empty public constructor
     }
 
 
-    public static TaskPerStateFragment newInstance(State state) {
-        TaskPerStateFragment fragment = new TaskPerStateFragment();
+    public static TaskListFragment newInstance(State state, IRepositoryTask repositoryTask,
+                                               UUID id) {
+        TaskListFragment fragment = new TaskListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_STATE,state);
+        args.putSerializable(ARGS_STATE, state);
+        args.putSerializable(ARGS_TASK_REPOSITORY, repositoryTask);
+        args.putSerializable(ARGS_ID_USER, id);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,21 +55,21 @@ public class TaskPerStateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         mRepositoryTask = TaskRepository.getInstance();
 
         //this is storage of this fragment
-        mState = (State) getArguments().getSerializable(ARGS_STATE);
-
-
+        if (getArguments() != null) {
+            mRepositoryTask = (IRepositoryTask) getArguments().getSerializable(ARGS_TASK_REPOSITORY);
+            mIdUser = (UUID) getArguments().getSerializable(ARGS_ID_USER);
+            mState = (State) getArguments().getSerializable(ARGS_STATE);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_task_per_state, container, false);
+        View view = inflater.inflate(R.layout.fragment_task_list, container, false);
         setViews(view);
         initViews();
         return view;
@@ -77,8 +82,13 @@ public class TaskPerStateFragment extends Fragment {
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mTasks = mRepositoryTask.getTaskList();
-        TaskAdapter taskAdapter = new TaskAdapter(mTasks);
-        mRecyclerView.setAdapter(taskAdapter);
+        if (mTasks.size() == 0) {
+
+        } else {
+            TaskListFragment.TaskAdapter taskAdapter = new TaskListFragment.TaskAdapter(mTasks);
+            mRecyclerView.setAdapter(taskAdapter);
+        }
+
     }
 
     private class TaskHolder extends RecyclerView.ViewHolder {
@@ -99,19 +109,19 @@ public class TaskPerStateFragment extends Fragment {
         }
 
         public void bindTask(Task task) {
-
             mTask = task;
-            mTitleTask.setText(task.getTitleTask());
-            mDateTask.setText(task.getDateTask().toString());
-            String title = task.getTitleTask();
-            mBtnTask.setText(title.charAt(0));
+            if (mTask.getStateTask().equals(mState)) {
+                mTitleTask.setText(task.getTitleTask());
+                mDateTask.setText(task.getDateTask().toString());
+                String title = task.getTitleTask();
+                mBtnTask.setText(title.charAt(0));
+            }
         }
 
 
     }
 
-
-    private class TaskAdapter extends RecyclerView.Adapter<TaskHolder> {
+    private class TaskAdapter extends RecyclerView.Adapter<TaskListFragment.TaskHolder> {
         private List<Task> mTasks;
 
         public TaskAdapter(List<Task> taskList) {
@@ -129,15 +139,15 @@ public class TaskPerStateFragment extends Fragment {
 
         @NonNull
         @Override
-        public TaskHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public TaskListFragment.TaskHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
             View view = layoutInflater.inflate(R.layout.task_row_list, parent, false);
-            TaskHolder taskHolder =new TaskHolder(view);
+            TaskListFragment.TaskHolder taskHolder = new TaskListFragment.TaskHolder(view);
             return taskHolder;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull TaskHolder holder, int position) {
+        public void onBindViewHolder(@NonNull TaskListFragment.TaskHolder holder, int position) {
             Task task = mTasks.get(position);
             holder.bindTask(task);
         }
@@ -147,7 +157,6 @@ public class TaskPerStateFragment extends Fragment {
             return mTasks.size();
         }
     }
-
 
 
 }

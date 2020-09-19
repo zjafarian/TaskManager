@@ -3,7 +3,6 @@ package com.example.taskmanager.model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
-import java.util.zip.DataFormatException;
 
 public class Task implements Serializable {
     private UUID mIdTask;
@@ -14,10 +13,9 @@ public class Task implements Serializable {
     private Date mDateTask;
 
 
-
-    public Task(String title, State stateTask, String description, User  user) {
+    public Task(String title, State stateTask, String description, UUID idUser) {
         mIdTask = UUID.randomUUID();
-        mIdUser = user.getIDUser();
+        mIdUser = idUser;
         mTitleTask = title;
         mStateTask = stateTask;
         mDescription = description;
@@ -69,5 +67,12 @@ public class Task implements Serializable {
 
     public void setTitleTask(String titleTask) {
         mTitleTask = titleTask;
+    }
+
+    private State generateRandomState() {
+        State[] states = State.values();
+        int length = states.length - 1;
+        int rndIndex = (int) (Math.random() * (length - 0 + 1) + 0);
+        return states[rndIndex];
     }
 }
