@@ -3,9 +3,10 @@ package com.example.taskmanager.controller.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,17 +38,15 @@ public class TaskActivity extends AppCompatActivity {
     public static final String TAG_CREATE_TASK = "createTask";
     private ViewPager2 mViewPager;
     private TabLayout mTabLayout;
-    private TextView mTextUserName;
     private IRepositoryUser mRepositoryUser;
     private IRepositoryTask mRepositoryTask;
     private Button mButtonAdd;
-    private Button mButtonLogout;
-    private Button mButtonDeleteAllTasks;
     private UUID mIdUser;
     private List<Task> mTasks = new ArrayList<>();
     private List<User> mUsers;
     private List<State> mStates = Arrays.asList(State.values());
     private User mUser;
+    private String userName;
 
     public static Intent newIntent(Context context, UUID id) {
         Intent intent = new Intent(context, TaskActivity.class);
@@ -59,6 +58,8 @@ public class TaskActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
+
+
         mRepositoryTask = TaskRepository.getInstance();
         mRepositoryUser = UserRepository.getInstance();
         mTasks = mRepositoryTask.getTaskList();
@@ -72,6 +73,38 @@ public class TaskActivity extends AppCompatActivity {
         mUsers = mRepositoryUser.getUserList();
         initViews();
         setListener();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.task_menu,menu);
+        MenuItem itemShow =menu.findItem(R.id.show_users);
+        MenuItem itemDelete = menu.findItem(R.id.delete_all_task);
+        if (userName.equals("admin")) {
+            itemShow.setVisible(true);
+            itemDelete.setVisible(false);
+        } else {
+            itemShow.setVisible(false);
+            itemDelete.setVisible(true);
+        }
+
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.show_users:
+                return true;
+            case R.id.delete_all_task:
+                return true;
+            case R.id.log_out:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
 
     }
 
@@ -90,10 +123,7 @@ public class TaskActivity extends AppCompatActivity {
     private void setViews() {
         mTabLayout = findViewById(R.id.tab_layout);
         mViewPager = findViewById(R.id.view_pager_state_task);
-        mTextUserName = findViewById(R.id.text_user_name);
         mButtonAdd = findViewById(R.id.btn_add);
-        mButtonLogout = findViewById(R.id.btn_logout);
-        mButtonDeleteAllTasks = findViewById(R.id.btn_delete_all_tasks);
     }
 
     private void initViews() {
@@ -101,6 +131,7 @@ public class TaskActivity extends AppCompatActivity {
             if (userFind.getIDUser().equals(mIdUser))
                 mUser = userFind;
         }
+        userName = mUser.getUsername();
         AppCompatActivity activity = (AppCompatActivity) this;
         activity.getSupportActionBar().setTitle(mUser.getUsername());
         setListTask();

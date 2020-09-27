@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/delete_all_task"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/delete_all_tasks"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/show_users"
+        android:icon="@drawable/ic_show"
+        android:title="@string/show_all_users"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/log_out"
+        android:title="@string/log_out"
+        app:showAsAction="never" />
 </menu>
