@@ -1,11 +1,15 @@
 package com.example.taskmanager.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
     private String mUsername;
     private String mPassword;
     private UUID mIDUser;
+
+    public User() {
+    }
 
     public User(String username, String password) {
         mIDUser = UUID.randomUUID();

@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -26,20 +27,17 @@ import java.util.UUID;
 public class SignUpFragment extends Fragment {
     public static final String SAVE_USER_NAME_SIGN_UP = "saveUserNameSignUp";
     public static final String SAVE_PASSWORD_SIGN_UP = "savePasswordSignUp";
-    public static final String EXTRA_GET_BANK_USER = "get_bank_user";
-    public static final String SAVE_BANK_USER = "save_bank_user";
-    public static final String CURRENT_INDEX = "current-index";
-    public static final String ARGS_REPOSITORY_USER_SING_UP = "args_repository_user";
     public static final String ARGS_USERNAME_SING_UP = "argsUsernameSingUp";
     public static final String ARGS_PASSWORD_SIGN_UP = "argsPasswordSignUp";
     public static final String SAVE_REPOSITORY_USER_SIGN_UP = "SaveRepositoryUserSignUp";
+    public static final String EXTRA_USER_ID_SIGN_UP = "userIdSignUp";
     private Button mSign;
     private TextInputEditText mUserNameSignUp;
     private TextInputEditText mPasswordSignUp;
     private String username;
     private String password;
     private IRepositoryUser mRepositoryUser;
-    private List<User> mUserList;
+    private List<User> mUserList = new ArrayList<>();
     private UUID mUserId;
 
 
@@ -48,11 +46,10 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    public static SignUpFragment newInstance(IRepositoryUser repositoryUser, String username,
+    public static SignUpFragment newInstance(String username,
                                              String password) {
         SignUpFragment fragment = new SignUpFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_REPOSITORY_USER_SING_UP, repositoryUser);
         args.putString(ARGS_USERNAME_SING_UP, username);
         args.putString(ARGS_PASSWORD_SIGN_UP, password);
         fragment.setArguments(args);
@@ -62,17 +59,11 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUserList = new ArrayList<>();
         mRepositoryUser = UserRepository.getInstance();
-        mUserList = mRepositoryUser.getUserList();
-
         //this is storage of this fragment
-        if (getArguments() != null){
-            mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_SING_UP);
-            password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
-            username = getArguments().getString(ARGS_USERNAME_SING_UP);
-            mUserList = mRepositoryUser.getUserList();
-        }
+        password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
+        username = getArguments().getString(ARGS_USERNAME_SING_UP);
+        mUserList = mRepositoryUser.getUserList();
 
 
         //Handel SaveInstance
@@ -93,7 +84,7 @@ public class SignUpFragment extends Fragment {
         setId(view);
         initViews();
         if (savedInstanceState != null) {
-           initViews();
+            initViews();
         }
         setListener();
         return view;
@@ -127,10 +118,9 @@ public class SignUpFragment extends Fragment {
                     mUserList.add(user);
                     mRepositoryUser.insertUser(user);
                     mUserId = user.getIDUser();
-                    Intent intent = LoginActivity.newIntent(getActivity(), mRepositoryUser,mUserId);
-                    startActivity(intent);
+                    Intent intent = LoginActivity.newIntent(getActivity(),mUserId);
+                    getActivity().setResult(Activity.RESULT_OK,intent);
                     getActivity().finish();
-
                 }
 
 
@@ -141,8 +131,7 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(SAVE_USER_NAME_SIGN_UP,username);
-        outState.putString(SAVE_PASSWORD_SIGN_UP,password);
-        outState.putSerializable(SAVE_REPOSITORY_USER_SIGN_UP,mRepositoryUser);
+        outState.putString(SAVE_USER_NAME_SIGN_UP, username);
+        outState.putString(SAVE_PASSWORD_SIGN_UP, password);
     }
 }

@@ -77,7 +77,6 @@ public class DateFragment extends DialogFragment {
 
     private void sendResult(Date userSelectedDate) {
         Fragment fragment = getTargetFragment();
-
         int requestCode = getTargetRequestCode();
         int resultCode = Activity.RESULT_OK;
         Intent intent = new Intent();

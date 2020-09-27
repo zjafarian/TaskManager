@@ -18,6 +18,7 @@ import com.example.taskmanager.R;
 import com.example.taskmanager.controller.fragment.CreateTaskFragment;
 import com.example.taskmanager.controller.fragment.TaskListFragment;
 import com.example.taskmanager.model.State;
+import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
@@ -26,13 +27,12 @@ import com.example.taskmanager.repository.UserRepository;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskPagerActivity extends AppCompatActivity {
-    public static final String EXTRA_USER_REPOSITORY = "com.example.taskmanager.UserRepository";
-    public static final String EXTRA_TASK_REPOSITORY = "com.example.taskmanager.TaskRepository";
+public class TaskActivity extends AppCompatActivity {
     public static final String EXTRA_USER_ID = "com.example.taskmanager.UserId";
     public static final String TAG_CREATE_TASK = "createTask";
     private ViewPager2 mViewPager;
@@ -44,37 +44,35 @@ public class TaskPagerActivity extends AppCompatActivity {
     private Button mButtonLogout;
     private Button mButtonDeleteAllTasks;
     private UUID mIdUser;
-    private State mStateTask;
-    List<User> mUsers;
+    private List<Task> mTasks = new ArrayList<>();
+    private List<User> mUsers;
+    private List<State> mStates = Arrays.asList(State.values());
+    private User mUser;
 
-    public static Intent newIntent(Context context, IRepositoryTask repositoryTask, UUID id) {
-        Intent intent = new Intent(context, TaskListActivity.class);
-        intent.putExtra(EXTRA_TASK_REPOSITORY, repositoryTask);
+    public static Intent newIntent(Context context, UUID id) {
+        Intent intent = new Intent(context, TaskActivity.class);
         intent.putExtra(EXTRA_USER_ID, id);
-
         return intent;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task_pager);
+        setContentView(R.layout.activity_task);
         mRepositoryTask = TaskRepository.getInstance();
         mRepositoryUser = UserRepository.getInstance();
+        mTasks = mRepositoryTask.getTaskList();
 
-        //get intent
-        mRepositoryUser = (IRepositoryUser) getIntent().getSerializableExtra(EXTRA_USER_REPOSITORY);
-        mRepositoryTask = (IRepositoryTask) getIntent().getSerializableExtra(EXTRA_TASK_REPOSITORY);
-        mIdUser = (UUID) getIntent().getSerializableExtra(EXTRA_USER_ID);
 
+        //this is storage of this Intent
+        if (getIntent() != null) {
+            mIdUser = (UUID) getIntent().getSerializableExtra(EXTRA_USER_ID);
+        }
         setViews();
         mUsers = mRepositoryUser.getUserList();
-        for (User user: mUsers) {
-            if (user.getIDUser().equals(mIdUser))
-                mTextUserName.setText(user.getUsername());
-        }
         initViews();
         setListener();
+
     }
 
     private void setListener() {
@@ -99,46 +97,51 @@ public class TaskPagerActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        for (User userFind:mUsers) {
+            if (userFind.getIDUser().equals(mIdUser))
+                mUser = userFind;
+        }
+        AppCompatActivity activity = (AppCompatActivity) this;
+        activity.getSupportActionBar().setTitle(mUser.getUsername());
         setListTask();
     }
 
     private void setListTask() {
-        List<State> states = Arrays.asList(State.values());
-        final List<State> finalStates = states;
-        StateTaskPagerAdapter adapter = new
-                StateTaskPagerAdapter(this, states);
-        mViewPager.setAdapter(adapter);
+        mViewPager.setAdapter(createCardAdapter());
         new TabLayoutMediator(mTabLayout, mViewPager, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                String nameState = String.valueOf(finalStates.get(position));
-                tab.setText(nameState + (position + 1));
+                String nameTab = String.valueOf(mStates.get(position));
+                tab.setText(nameTab);
             }
         }).attach();
+
+
     }
 
-    private class StateTaskPagerAdapter extends FragmentStateAdapter {
-        List<State> mStates;
 
-        public StateTaskPagerAdapter(@NonNull FragmentActivity fragmentActivity,
-                                     List<State> states) {
+    public class ViewPagerAdapter extends FragmentStateAdapter {
+
+
+        public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
-            mStates = states;
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            State state = mStates.get(position);
-            TaskListFragment stateFragment = TaskListFragment.newInstance
-                    (state, mRepositoryTask, mIdUser);
-            return stateFragment;
+            return TaskListFragment.newInstance(position, mIdUser);
         }
 
         @Override
         public int getItemCount() {
             return mStates.size();
         }
+    }
+
+    private ViewPagerAdapter createCardAdapter() {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+        return adapter;
     }
 
 

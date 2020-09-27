@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public class Task implements Serializable {
     private UUID mIdTask;
-    private String mTitleTask;
-    private String mDescription;
-    private State mStateTask;
+    private String mTitleTask="title";
+    private String mDescription="description";
+    private State mStateTask=State.Todo;
     private UUID mIdUser;
     private Date mDateTask;
 

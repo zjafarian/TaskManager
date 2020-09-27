@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".controller.activity.TaskPagerActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".controller.activity.TaskActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -16,37 +15,37 @@
             android:id="@+id/text_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="username"
-            android:padding="10dp"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"/>
+            android:layout_alignParentTop="true"
+            android:padding="10dp"
+            tools:text="username" />
 
         <Button
             android:id="@+id/btn_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LogOut"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:text="LogOut" />
 
         <Button
             android:id="@+id/btn_delete_all_tasks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete All Tasks"
             android:layout_toRightOf="@id/text_user_name"
-            />
+            android:text="Delete All Tasks" />
 
     </RelativeLayout>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
 
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_state_task"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1">
 
@@ -56,8 +55,8 @@
         android:id="@+id/btn_add"
         android:layout_width="72dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="right"
         android:layout_margin="20dp"
-        android:text="+"
-        android:layout_gravity="right"/>
+        android:text="+" />
 
 </LinearLayout>

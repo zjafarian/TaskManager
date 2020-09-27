@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,25 +14,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.taskmanager.R;
-import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
-import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.TaskRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 
 public class TaskListFragment extends Fragment {
-    public static final String ARGS_STATE = "argsState";
-    public static final String ARGS_TASK_REPOSITORY = "ArgsTaskRepository";
     public static final String ARGS_ID_USER = "ArgsIdUser";
+    public static final String ARGS_INDEX = "argsIndex";
     private RecyclerView mRecyclerView;
     private IRepositoryTask mRepositoryTask;
-    private User mUser;
-    private List<Task> mTasks;
-    private State mState;
+    private ImageView mImageViewEmpty;
+    private int mIndex;
+    private List<Task> mTasks = new ArrayList<>();
     private UUID mIdUser;
 
 
@@ -40,14 +39,12 @@ public class TaskListFragment extends Fragment {
     }
 
 
-    public static TaskListFragment newInstance(State state, IRepositoryTask repositoryTask,
+    public static TaskListFragment newInstance(int index,
                                                UUID id) {
         TaskListFragment fragment = new TaskListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_STATE, state);
-        args.putSerializable(ARGS_TASK_REPOSITORY, repositoryTask);
+        args.putInt(ARGS_INDEX, index);
         args.putSerializable(ARGS_ID_USER, id);
-
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,12 +53,10 @@ public class TaskListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepositoryTask = TaskRepository.getInstance();
-
         //this is storage of this fragment
         if (getArguments() != null) {
-            mRepositoryTask = (IRepositoryTask) getArguments().getSerializable(ARGS_TASK_REPOSITORY);
+            mIndex = getArguments().getInt(ARGS_INDEX);
             mIdUser = (UUID) getArguments().getSerializable(ARGS_ID_USER);
-            mState = (State) getArguments().getSerializable(ARGS_STATE);
         }
     }
 
@@ -77,14 +72,18 @@ public class TaskListFragment extends Fragment {
 
     private void setViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_task_list);
+        mImageViewEmpty = view.findViewById(R.id.image_empty);
     }
 
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mTasks = mRepositoryTask.getTaskList();
         if (mTasks.size() == 0) {
-
+            mRecyclerView.setVisibility(View.GONE);
+            mImageViewEmpty.setVisibility(View.VISIBLE);
         } else {
+            mImageViewEmpty.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mTasks = mRepositoryTask.getTaskList();
             TaskListFragment.TaskAdapter taskAdapter = new TaskListFragment.TaskAdapter(mTasks);
             mRecyclerView.setAdapter(taskAdapter);
         }
@@ -102,6 +101,7 @@ public class TaskListFragment extends Fragment {
             setViews(itemView);
             setListener(itemView);
         }
+
         private void setListener(@NonNull View itemView) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -120,7 +120,7 @@ public class TaskListFragment extends Fragment {
 
         public void bindTask(Task task) {
             mTask = task;
-            if (mTask.getStateTask().equals(mState)) {
+            if (mTask.getIdUser().equals(mIdUser)) {
                 mTitleTask.setText(task.getTitleTask());
                 mDateTask.setText(task.getDateTask().toString());
                 String title = task.getTitleTask();
@@ -130,7 +130,6 @@ public class TaskListFragment extends Fragment {
 
 
     }
-
 
 
     private class TaskAdapter extends RecyclerView.Adapter<TaskListFragment.TaskHolder> {
@@ -160,7 +159,10 @@ public class TaskListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull TaskListFragment.TaskHolder holder, int position) {
-            Task task = mTasks.get(position);
+            Task task = null;
+            if (mIndex == position) {
+                task = mTasks.get(position);
+            }
             holder.bindTask(task);
         }
 
