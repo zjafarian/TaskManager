@@ -145,7 +145,7 @@ public class LoginFragment extends Fragment {
         mButton_logIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               UUID id = mUserId;
+                UUID id = mUserId;
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
                 if (username.equals("admin") && password.equals("admin")) {
@@ -181,9 +181,7 @@ public class LoginFragment extends Fragment {
             public void onClick(View v) {
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
-                Intent intent = new Intent(getActivity(),SignUpActivity.class);
-                        SignUpActivity.newIntent(getActivity(),
-                        username, password);
+                Intent intent = SignUpActivity.newIntent(getActivity(), username, password);
                 startActivityForResult(intent, REQUEST_CODE_SING_UP);
 
             }
@@ -192,7 +190,7 @@ public class LoginFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode != Activity.RESULT_OK && data==null)
+        if (resultCode != Activity.RESULT_OK && data == null)
             return;
         if (requestCode == REQUEST_CODE_SING_UP) {
             mUserId = (UUID) data.getSerializableExtra(LoginActivity.EXTRA_ID_USER);

@@ -30,7 +30,6 @@ public class SignUpFragment extends Fragment {
     public static final String ARGS_USERNAME_SING_UP = "argsUsernameSingUp";
     public static final String ARGS_PASSWORD_SIGN_UP = "argsPasswordSignUp";
     public static final String SAVE_REPOSITORY_USER_SIGN_UP = "SaveRepositoryUserSignUp";
-    public static final String EXTRA_USER_ID_SIGN_UP = "userIdSignUp";
     private Button mSign;
     private TextInputEditText mUserNameSignUp;
     private TextInputEditText mPasswordSignUp;

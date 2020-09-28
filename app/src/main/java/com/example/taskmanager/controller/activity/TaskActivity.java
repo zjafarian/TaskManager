@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +42,7 @@ public class TaskActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private IRepositoryUser mRepositoryUser;
     private IRepositoryTask mRepositoryTask;
+    private ImageView mImageViewEmpty;
     private Button mButtonAdd;
     private UUID mIdUser;
     private List<Task> mTasks = new ArrayList<>();
@@ -47,6 +50,10 @@ public class TaskActivity extends AppCompatActivity {
     private List<State> mStates = Arrays.asList(State.values());
     private User mUser;
     private String userName;
+    private TextView mTextSituation;
+    private List<Task> mTasksDone = new ArrayList<>();
+    private List<Task> mTasksDoing = new ArrayList<>();
+    private List<Task> mTasksTodo = new ArrayList<>();
 
     public static Intent newIntent(Context context, UUID id) {
         Intent intent = new Intent(context, TaskActivity.class);
@@ -58,12 +65,10 @@ public class TaskActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
-
-
         mRepositoryTask = TaskRepository.getInstance();
         mRepositoryUser = UserRepository.getInstance();
         mTasks = mRepositoryTask.getTaskList();
-
+        mUsers = mRepositoryUser.getUserList();
 
         //this is storage of this Intent
         if (getIntent() != null) {
@@ -72,14 +77,19 @@ public class TaskActivity extends AppCompatActivity {
         setViews();
         mUsers = mRepositoryUser.getUserList();
         initViews();
+        if (mUser.getUsername().equals("admin") && mUser.getPassword().equals("admin"))
+            setTasksDoingDoneTodoAdmin();
+        else
+            setTasksDoingDoneTodoUser();
+        setListTask();
         setListener();
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.task_menu,menu);
-        MenuItem itemShow =menu.findItem(R.id.show_users);
+        getMenuInflater().inflate(R.menu.task_menu, menu);
+        MenuItem itemShow = menu.findItem(R.id.show_users);
         MenuItem itemDelete = menu.findItem(R.id.delete_all_task);
         if (userName.equals("admin")) {
             itemShow.setVisible(true);
@@ -92,10 +102,9 @@ public class TaskActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.show_users:
                 return true;
             case R.id.delete_all_task:
@@ -106,6 +115,28 @@ public class TaskActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    private void setTasksDoingDoneTodoUser() {
+        for (Task task : mTasks) {
+            if (task.getStateTask().equals(State.Todo) && task.getIdUser().equals(mIdUser))
+                mTasksTodo.add(task);
+            else if (task.getStateTask().equals(State.Doing) && task.getIdUser().equals(mIdUser))
+                mTasksDoing.add(task);
+            else if (task.getStateTask().equals(State.Done) && task.getIdUser().equals(mIdUser))
+                mTasksDone.add(task);
+        }
+    }
+
+    private void setTasksDoingDoneTodoAdmin() {
+        for (Task task : mTasks) {
+            if (task.getStateTask().equals(State.Todo))
+                mTasksTodo.add(task);
+            else if (task.getStateTask().equals(State.Doing))
+                mTasksDoing.add(task);
+            else if (task.getStateTask().equals(State.Done))
+                mTasksDone.add(task);
+        }
     }
 
     private void setListener() {
@@ -124,17 +155,19 @@ public class TaskActivity extends AppCompatActivity {
         mTabLayout = findViewById(R.id.tab_layout);
         mViewPager = findViewById(R.id.view_pager_state_task);
         mButtonAdd = findViewById(R.id.btn_add);
+        mImageViewEmpty = findViewById(R.id.image_empty_list);
+        mTextSituation = findViewById(R.id.text_view_empty_task);
+
     }
 
     private void initViews() {
-        for (User userFind:mUsers) {
+        for (User userFind : mUsers) {
             if (userFind.getIDUser().equals(mIdUser))
                 mUser = userFind;
         }
         userName = mUser.getUsername();
         AppCompatActivity activity = (AppCompatActivity) this;
         activity.getSupportActionBar().setTitle(mUser.getUsername());
-        setListTask();
     }
 
     private void setListTask() {
@@ -143,13 +176,45 @@ public class TaskActivity extends AppCompatActivity {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                 String nameTab = String.valueOf(mStates.get(position));
+                switch (position){
+                    case 0:
+                        if (mTasksTodo.size()==0){
+                            mImageViewEmpty.setVisibility(View.VISIBLE);
+                            mTextSituation.setVisibility(View.VISIBLE);
+                            mTextSituation.setText("List Todo Tasks is Empty");
+                        } else {
+                            mImageViewEmpty.setVisibility(View.GONE);
+                            mTextSituation.setVisibility(View.GONE);
+                        }
+
+                        break;
+                    case 1:
+                        if (mTasksDoing.size()==0){
+                            mImageViewEmpty.setVisibility(View.VISIBLE);
+                            mTextSituation.setVisibility(View.VISIBLE);
+                            mTextSituation.setText("List Doing Tasks is Empty");
+                        } else {
+                            mImageViewEmpty.setVisibility(View.GONE);
+                            mTextSituation.setVisibility(View.GONE);
+                        }
+                        break;
+                    case 2:
+                        if (mTasksDone.size()==0){
+                            mImageViewEmpty.setVisibility(View.VISIBLE);
+                            mTextSituation.setVisibility(View.VISIBLE);
+                            mTextSituation.setText("List Done Tasks is Empty");
+                        } else {
+                            mImageViewEmpty.setVisibility(View.GONE);
+                            mTextSituation.setVisibility(View.GONE);
+                        }
+                        break;
+                }
                 tab.setText(nameTab);
             }
         }).attach();
 
 
     }
-
 
     public class ViewPagerAdapter extends FragmentStateAdapter {
 

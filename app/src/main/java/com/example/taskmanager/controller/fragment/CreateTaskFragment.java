@@ -80,6 +80,7 @@ public class CreateTaskFragment extends DialogFragment {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View view = inflater.inflate(R.layout.fragment_create_task, null);
         setViews(view);
+        setListener();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.title_dialog_create)
                 .setView(view)
@@ -87,13 +88,11 @@ public class CreateTaskFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         createTask();
-                        setListener();
-
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
 
-        AlertDialog dialog =builder.create();
+        AlertDialog dialog = builder.create();
 
         return dialog;
     }
@@ -155,7 +154,7 @@ public class CreateTaskFragment extends DialogFragment {
         if (requestCode == REQUEST_CODE_DATE_CREATE) {
             mDate = (Date) data.getSerializableExtra(DateFragment.EXTRA_USER_SELECTED_DATE);
         }
-        if (requestCode==REQUEST_CODE_TIME_CREATE){
+        if (requestCode == REQUEST_CODE_TIME_CREATE) {
             mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
         }
         mDate = setCalender();
@@ -163,7 +162,7 @@ public class CreateTaskFragment extends DialogFragment {
 
     }
 
-    private Date setCalender(){
+    private Date setCalender() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(mDate);
         int year = calendar.get(Calendar.YEAR);
@@ -172,12 +171,11 @@ public class CreateTaskFragment extends DialogFragment {
         calendar.setTime(mTime);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        calendar.set(Calendar.YEAR,year);
-        calendar.set(Calendar.MONTH,monthOfYear);
-        calendar.set(Calendar.DAY_OF_MONTH,dayOfMonth);
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
-
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, monthOfYear);
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
         return calendar.getTime();
     }
 

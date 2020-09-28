@@ -66,7 +66,6 @@ public class DateFragment extends DialogFragment {
                         Date userSelectedDate = extractDateFromDatePicker();
                         sendResult(userSelectedDate);
 
-
                     }
                 })
                 .setNegativeButton(android.R.string.cancel,null);
