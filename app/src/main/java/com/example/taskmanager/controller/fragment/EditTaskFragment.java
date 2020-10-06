@@ -15,6 +15,7 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.example.taskmanager.R;
 import com.example.taskmanager.model.Task;
@@ -24,6 +25,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 
 public class EditTaskFragment extends DialogFragment {
@@ -31,7 +34,8 @@ public class EditTaskFragment extends DialogFragment {
     public static final String TIME_PICKER_EDIT = "timePickerEdit";
     public static final int REQUEST_CODE_DATE_EDIT = 0;
     public static final int REQUEST_CODE_TIME_EDIT = 1;
-    public static final String ARGS_TASK_EDIT = "argsTaskEdit";
+    public static final String ARGS_TASK_ID = "TaskId";
+    public static final String EXTRA_SEND_TASK = "com.example.taskmanager.SendTask";
     private Task mTask;
     private IRepositoryTask mRepositoryTask;
     private TextInputEditText mTextTitleEdit;
@@ -45,6 +49,9 @@ public class EditTaskFragment extends DialogFragment {
     private RadioButton mRdBtnTodoEdit;
     private Date mDate;
     private Date mTime;
+    private UUID mTaskId;
+    private List<Task> mTaskList;
+    private Date mDateNew;
 
 
     public EditTaskFragment() {
@@ -52,10 +59,10 @@ public class EditTaskFragment extends DialogFragment {
     }
 
 
-    public static EditTaskFragment newInstance(Task task) {
+    public static EditTaskFragment newInstance(UUID uuid) {
         EditTaskFragment fragment = new EditTaskFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_TASK_EDIT,task);
+        args.putSerializable(ARGS_TASK_ID, uuid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,10 +70,16 @@ public class EditTaskFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTask = (Task) getArguments().getSerializable(ARGS_TASK_EDIT);
         mRepositoryTask = TaskRepository.getInstance();
-
-
+        mTaskList = mRepositoryTask.getTaskList();
+        if (getArguments() != null) {
+            mTaskId = (UUID) getArguments().getSerializable(ARGS_TASK_ID);
+        }
+        for (Task taskFind:mTaskList) {
+            if (taskFind.getIdTask().equals(mTaskId))
+                mTask = taskFind;
+        }
+        mDateNew = setCalender();
     }
 
     @NonNull
@@ -76,6 +89,7 @@ public class EditTaskFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_edit_task, null);
         setViews(view);
         initViews();
+        setListener();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.title_dialog_create)
@@ -83,7 +97,12 @@ public class EditTaskFragment extends DialogFragment {
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        setListener();
+                        mTask.setTitleTask(mTextTitleEdit.getText().toString());
+                        mTask.setDescription(mTextDescriptionEdit.getText().toString());
+                        mTask.setDateTask(mDateNew);
+                        sendResult();
+
+
 
 
                     }
@@ -99,14 +118,22 @@ public class EditTaskFragment extends DialogFragment {
         return dialog;
 
     }
+    private void sendResult() {
+        Fragment fragment = getTargetFragment();
+        int requestCode = getTargetRequestCode();
+        int resultCode = Activity.RESULT_OK;
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_SEND_TASK,mTask);
+        fragment.onActivityResult(requestCode, resultCode, intent);
+    }
+
+
 
     private void setListener() {
         mBtnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setEnable(true);
-                mTask.setTitleTask(mTextTitleEdit.getText().toString());
-                mTask.setDescription(mTextDescriptionEdit.getText().toString());
             }
         });
         mBtnDate.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +182,7 @@ public class EditTaskFragment extends DialogFragment {
         mBtnTime.setText(hour + ":" + minute);
         mTextTitleEdit.setText(mTask.getTitleTask());
         mTextDescriptionEdit.setText(mTask.getDescription());
-        switch (mTask.getStateTask()){
+        switch (mTask.getStateTask()) {
             case Done:
                 mRdBtnDoneEdit.setChecked(true);
                 break;
@@ -194,21 +221,26 @@ public class EditTaskFragment extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode != Activity.RESULT_OK || data == null)
             return;
-        if (requestCode==REQUEST_CODE_DATE_EDIT){
+        if (requestCode == REQUEST_CODE_DATE_EDIT) {
             mDate = (Date) data.getSerializableExtra(DateFragment.EXTRA_USER_SELECTED_DATE);
+            updateDateTask(mDate);
+            mDate = setCalender();
+
         }
-        if (requestCode==REQUEST_CODE_TIME_EDIT){
-            mTime= (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
+        if (requestCode == REQUEST_CODE_TIME_EDIT) {
+            mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
+            updateDateTask(mTime);
+            mTime = setCalender();
         }
 
-        mDate = setCalender();
-        updateDateTask(mDate);
+
+
+
 
     }
 
     private void updateDateTask(Date dateUserSelected) {
         mTask.setDateTask(dateUserSelected);
-        updateTask();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateUserSelected);
         int year = calendar.get(Calendar.YEAR);
@@ -222,10 +254,6 @@ public class EditTaskFragment extends DialogFragment {
 
     }
 
-    private void updateTask() {
-        mRepositoryTask.updateTask(mTask);
-    }
-
     private Date setCalender() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(mDate);
@@ -235,11 +263,11 @@ public class EditTaskFragment extends DialogFragment {
         calendar.setTime(mTime);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        calendar.set(Calendar.YEAR,year);
-        calendar.set(Calendar.MONTH,monthOfYear);
-        calendar.set(Calendar.DAY_OF_MONTH,dayOfMonth);
-        calendar.set(Calendar.HOUR_OF_DAY,hour);
-        calendar.set(Calendar.MINUTE,minute);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, monthOfYear);
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
 
         return calendar.getTime();
     }

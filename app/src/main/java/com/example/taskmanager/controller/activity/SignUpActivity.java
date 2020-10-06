@@ -24,8 +24,7 @@ public class SignUpActivity extends SingleFragmentActivity {
     public Fragment createFragment() {
         String userName = getIntent().getStringExtra(EXTRA_USERNAME_SIGN_UP);
         String password = getIntent().getStringExtra(EXTRA_PASSWORD_SIGN_UP);
-
-        SignUpFragment signUpFragment = SignUpFragment.newInstance( userName, password);
+        SignUpFragment signUpFragment = SignUpFragment.newInstance(userName, password);
         return signUpFragment;
     }
 

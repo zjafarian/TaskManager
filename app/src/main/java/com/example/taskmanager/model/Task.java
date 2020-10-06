@@ -6,14 +6,14 @@ import java.util.UUID;
 
 public class Task implements Serializable {
     private UUID mIdTask;
-    private String mTitleTask="title";
-    private String mDescription="description";
-    private State mStateTask=State.Todo;
+    private String mTitleTask = "title";
+    private String mDescription = "description";
+    private State mStateTask = State.Todo;
     private UUID mIdUser;
-    private Date mDateTask;
+    private Date mDateTask = new Date();
 
 
-    public Task(String title, State stateTask, String description, UUID idUser) {
+    public Task(String title, String description, State stateTask, UUID idUser) {
         mIdTask = UUID.randomUUID();
         mIdUser = idUser;
         mTitleTask = title;

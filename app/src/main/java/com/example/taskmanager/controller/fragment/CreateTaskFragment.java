@@ -14,51 +14,48 @@ import android.widget.RadioGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.example.taskmanager.R;
 import com.example.taskmanager.model.State;
-import com.example.taskmanager.model.Task;
-import com.example.taskmanager.repository.IRepositoryTask;
-import com.example.taskmanager.repository.TaskRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
 
 public class CreateTaskFragment extends DialogFragment {
 
-
-    public static final String ARGS_REPOSITORY_TASK = "argsRepositoryTask";
     public static final String ARGS_ID_USER = "argsIdUser";
     public static final int REQUEST_CODE_DATE_CREATE = 0;
     public static final String DATE_PICKER_CREATE = "datePickerCreate";
     public static final int REQUEST_CODE_TIME_CREATE = 1;
     public static final String TIME_PICKER_CREATE = "timePickerCreate";
-    private UUID mIdUser;
-    private IRepositoryTask mRepositoryTask;
+    public static final String EXTRA_SEND_TITLE = "com.example.taskmanager.send title";
+    public static final String EXTRA_SEND_DESCRIPTION = "com.example.taskmanager.send description";
+    public static final String EXTRA_SEND_STATE = "com.example.taskmanager.send state";
+    public static final String EXTRA_SEND_DATE = "com.example.taskmanager.send date";
+    public static final String ARGS_USER_ID = "UserId";
     private TextInputEditText mTextTitleCreate;
     private TextInputEditText mTextDescriptionCreate;
     private Button mButtonDateCreate;
     private Button mButtonTimeCreate;
     private RadioGroup mRadioGroupCreate;
-    Date mDate;
-    Date mTime;
-    Task mTask;
-
+    private Date mDate = new Date();
+    private Date mTime = new Date();
     private State mStateTask;
+    private Date mDateNew = new Date();
+    private String mTitle;
+    private String mDescription;
 
 
     public CreateTaskFragment() {
         // Required empty public constructor
     }
 
-    public static CreateTaskFragment newInstance(IRepositoryTask task, UUID id) {
+    public static CreateTaskFragment newInstance() {
         CreateTaskFragment fragment = new CreateTaskFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_REPOSITORY_TASK, task);
-        args.putSerializable(ARGS_ID_USER, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,11 +63,7 @@ public class CreateTaskFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRepositoryTask = TaskRepository.getInstance();
 
-        //this is storage of this fragment
-        mRepositoryTask = (IRepositoryTask) getArguments().getSerializable(ARGS_REPOSITORY_TASK);
-        mIdUser = (UUID) getArguments().getSerializable(ARGS_ID_USER);
     }
 
 
@@ -88,6 +81,8 @@ public class CreateTaskFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         createTask();
+                        sendResult();
+
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
@@ -95,6 +90,19 @@ public class CreateTaskFragment extends DialogFragment {
         AlertDialog dialog = builder.create();
 
         return dialog;
+    }
+
+    private void sendResult() {
+
+        Fragment fragment = getTargetFragment();
+        int requestCode = getTargetRequestCode();
+        int resultCode = Activity.RESULT_OK;
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_SEND_TITLE, mTitle);
+        intent.putExtra(EXTRA_SEND_DESCRIPTION, mDescription);
+        intent.putExtra(EXTRA_SEND_STATE, mStateTask);
+        intent.putExtra(EXTRA_SEND_DATE, mDateNew);
+        fragment.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void createTask() {
@@ -109,13 +117,15 @@ public class CreateTaskFragment extends DialogFragment {
                 mStateTask = State.Todo;
                 break;
         }
-        mTask = new Task(mTextTitleCreate.getText().toString(), mStateTask,
-                mTextDescriptionCreate.getText().toString(), mIdUser);
-        mRepositoryTask.insertTask(mTask);
+
+        mTitle = mTextTitleCreate.getText().toString();
+        mDescription = mTextDescriptionCreate.getText().toString();
+        /*Task task = new Task(mTitle,mDescription,mStateTask,mUserId);
+        task.setDateTask(mDateNew);
+        mIRepositoryTask.insertTask(task);*/
     }
 
     private void setListener() {
-        mDate = new Date();
         mButtonDateCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,12 +163,15 @@ public class CreateTaskFragment extends DialogFragment {
             return;
         if (requestCode == REQUEST_CODE_DATE_CREATE) {
             mDate = (Date) data.getSerializableExtra(DateFragment.EXTRA_USER_SELECTED_DATE);
+            updateDateTask(mDate);
+            mDate = setCalender();
         }
         if (requestCode == REQUEST_CODE_TIME_CREATE) {
             mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
+            updateTimeTask(mTime);
+            mTime = setCalender();
         }
-        mDate = setCalender();
-        updateDateTask(mDate);
+        mDateNew = setCalender();
 
     }
 
@@ -180,23 +193,22 @@ public class CreateTaskFragment extends DialogFragment {
     }
 
     private void updateDateTask(Date dateUserSelected) {
-        mTask.setDateTask(dateUserSelected);
-        updateTask();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateUserSelected);
         int year = calendar.get(Calendar.YEAR);
         int monthOfYear = calendar.get(Calendar.MONTH);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        mButtonDateCreate.setText(year + "/" + monthOfYear + "/" + dayOfMonth);
+
+    }
+
+    private void updateTimeTask(Date timeUserSelected) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(timeUserSelected);
         int hour = calendar.get(Calendar.HOUR);
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
-        mButtonDateCreate.setText(year + "/" + monthOfYear + "/" + dayOfMonth);
         mButtonTimeCreate.setText(hour + ":" + minute + ":" + second);
     }
-
-    private void updateTask() {
-        mRepositoryTask.updateTask(mTask);
-    }
-
 
 }

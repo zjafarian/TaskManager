@@ -30,7 +30,7 @@ public class SignUpFragment extends Fragment {
     public static final String ARGS_USERNAME_SING_UP = "argsUsernameSingUp";
     public static final String ARGS_PASSWORD_SIGN_UP = "argsPasswordSignUp";
     public static final String SAVE_REPOSITORY_USER_SIGN_UP = "SaveRepositoryUserSignUp";
-    private Button mSign;
+    private Button mSignUp;
     private TextInputEditText mUserNameSignUp;
     private TextInputEditText mPasswordSignUp;
     private String username;
@@ -98,11 +98,11 @@ public class SignUpFragment extends Fragment {
     private void setId(View view) {
         mUserNameSignUp = view.findViewById(R.id.username_signUp);
         mPasswordSignUp = view.findViewById(R.id.password_signUp);
-        mSign = view.findViewById(R.id.btn_signup_sign);
+        mSignUp = view.findViewById(R.id.btn_signup_sign);
     }
 
     private void setListener() {
-        mSign.setOnClickListener(new View.OnClickListener() {
+        mSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 username = mUserNameSignUp.getText().toString();
@@ -114,8 +114,8 @@ public class SignUpFragment extends Fragment {
                     toast.show();
                 } else {
                     User user = new User(username, password);
-                    mUserList.add(user);
                     mRepositoryUser.insertUser(user);
+                    mUserList=mRepositoryUser.getUserList();
                     mUserId = user.getIDUser();
                     Intent intent = LoginActivity.newIntent(getActivity(),mUserId);
                     getActivity().setResult(Activity.RESULT_OK,intent);

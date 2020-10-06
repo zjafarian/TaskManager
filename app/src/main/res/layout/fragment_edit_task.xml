@@ -59,10 +59,11 @@
             android:textSize="12sp" />
 
         <RadioGroup
+            android:id="@+id/radio_group_edit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:id="@+id/radio_group_edit">
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/rd_btn_done_edit"
@@ -86,10 +87,10 @@
 
         <Button
             android:id="@+id/btn_task_edit"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/btn_edit_test"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:text="@string/btn_edit_test" />
 
     </LinearLayout>
 

@@ -19,9 +19,7 @@ import com.example.taskmanager.controller.activity.LoginActivity;
 import com.example.taskmanager.controller.activity.SignUpActivity;
 import com.example.taskmanager.controller.activity.TaskActivity;
 import com.example.taskmanager.model.User;
-import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
-import com.example.taskmanager.repository.TaskRepository;
 import com.example.taskmanager.repository.UserRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -46,9 +44,9 @@ public class LoginFragment extends Fragment {
     private String username = "";
     private String password = "";
     private IRepositoryUser mRepositoryUser;
-    private IRepositoryTask mRepositoryTask;
     private List<User> mUsers = new ArrayList<>();
     private UUID mUserId;
+    private boolean mCheck;
 
 
     public LoginFragment() {
@@ -68,12 +66,10 @@ public class LoginFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepositoryUser = UserRepository.getInstance();
-        mRepositoryTask = TaskRepository.getInstance();
         mUsers = mRepositoryUser.getUserList();
 
         //this is storage of this fragment
         if (getArguments() != null) {
-            mRepositoryUser = (IRepositoryUser) getArguments().getSerializable(ARGS_REPOSITORY_USER_LOGIN);
             mUserId = (UUID) getArguments().getSerializable(ARGS_ID_USER);
             for (User user1 : mUsers) {
                 if (user1.getIDUser().equals(mUserId)) {
@@ -81,7 +77,6 @@ public class LoginFragment extends Fragment {
                     password = user1.getPassword();
                 }
             }
-
         }
 
 
@@ -145,23 +140,27 @@ public class LoginFragment extends Fragment {
         mButton_logIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UUID id = mUserId;
                 username = mUsernameLogin.getText().toString().trim();
                 password = mPasswordLogin.getText().toString().trim();
-                if (username.equals("admin") && password.equals("admin")) {
-                    for (User userFind : mUsers) {
-                        if (userFind.getUsername().equals("admin") &&
-                                userFind.getPassword().equals("admin"))
-                            mUserId = userFind.getIDUser();
-                    }
-                    Intent intent = TaskActivity.newIntent(getActivity(), mUserId);
-                    startActivity(intent);
-                } else if (!mButton_signUp.isClickable()) {
-                    Toast toast = Toast.makeText(getActivity(), R.string.message_not_sign_up,
-                            Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.BOTTOM, 0, 0);
-                    toast.show();
+                mUsers = mRepositoryUser.getUserList();
 
+                if (mUsers.size() == 1) {
+                    if (username.equals("admin") && password.equals("admin")) {
+                        for (User userFind : mUsers) {
+                            if (userFind.getUsername().equals(username)
+                                    && userFind.getPassword().equals(password)) {
+                                mUserId = userFind.getIDUser();
+                            }
+                        }
+                        Intent intent =
+                                TaskActivity.newIntent(getActivity(), mUserId);
+                        startActivity(intent);
+                    } else {
+                        Toast toast = Toast.makeText(getActivity(),
+                                "username or password is wrong", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.BOTTOM, 0, 0);
+                        toast.show();
+                    }
                 } else {
                     if (username.matches("") || password.matches("")) {
                         Toast toast = Toast.makeText(getActivity(), R.string.message_signup,
@@ -169,8 +168,23 @@ public class LoginFragment extends Fragment {
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
                     } else {
-                        Intent intent = TaskActivity.newIntent(getActivity(), mUserId);
-                        startActivity(intent);
+                        for (User userFind : mUsers) {
+                            if (userFind.getUsername().equals(username)
+                                    && userFind.getPassword().equals(password)) {
+                                mUserId = userFind.getIDUser();
+                                mCheck = true;
+                            }
+                        }
+                        if (mCheck) {
+                            Intent intent =
+                                    TaskActivity.newIntent(getActivity(), mUserId);
+                            startActivity(intent);
+                        } else {
+                            Toast toast = Toast.makeText(getActivity(),
+                                    "username or password is wrong", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.BOTTOM, 0, 0);
+                            toast.show();
+                        }
                     }
                 }
             }
@@ -193,14 +207,9 @@ public class LoginFragment extends Fragment {
         if (resultCode != Activity.RESULT_OK && data == null)
             return;
         if (requestCode == REQUEST_CODE_SING_UP) {
+            mUsers = mRepositoryUser.getUserList();
             mUserId = (UUID) data.getSerializableExtra(LoginActivity.EXTRA_ID_USER);
-            User user = null;
-            for (User userFind : mUsers) {
-                if (userFind.getIDUser().equals(mUserId))
-                    user = userFind;
-            }
-            username = user.getUsername();
-            password = user.getPassword();
+
         }
     }
 }
