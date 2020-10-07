@@ -18,7 +18,6 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
 
     public TaskManagerDBRepository(Context context) {
         mContext = context.getApplicationContext();
-
         TaskDBHelper taskDBHelper = new TaskDBHelper (mContext);
         mDatabase = taskDBHelper.getWritableDatabase();
     }
