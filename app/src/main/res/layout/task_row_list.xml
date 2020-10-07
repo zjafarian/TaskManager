@@ -36,5 +36,13 @@
         tools:text="title task"
         android:layout_alignParentEnd="true" />
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:layout_below="@+id/text_date_task"
+        android:layout_marginTop="2dp"/>
+
 
 </RelativeLayout>
