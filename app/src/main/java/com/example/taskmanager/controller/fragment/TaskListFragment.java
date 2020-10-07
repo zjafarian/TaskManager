@@ -86,6 +86,10 @@ public class TaskListFragment extends Fragment {
             if (user.getIDUser().equals(mIdUser))
                 mUser = user;
         }
+        selectAdminOrUser();
+    }
+
+    private void selectAdminOrUser() {
         if (mUser.getUsername().equals("admin") && mUser.getPassword().equals("admin"))
             setTasksDoingDoneTodoAdmin();
         else
@@ -161,7 +165,6 @@ public class TaskListFragment extends Fragment {
             }
             mTaskAdapter.notifyDataSetChanged();
         }
-
 
     }
 
@@ -260,7 +263,13 @@ public class TaskListFragment extends Fragment {
         if (requestCode == REQUEST_CODE_EDIT) {
             mTask = (Task) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_TASK);
             updateTask();
+            mTasks = mRepositoryTask.getTaskList();
+            mTasksTodo.clear();
+            mTasksDoing.clear();
+            mTasksDone.clear();
+            selectAdminOrUser();
             initViews();
+
         }
 
 

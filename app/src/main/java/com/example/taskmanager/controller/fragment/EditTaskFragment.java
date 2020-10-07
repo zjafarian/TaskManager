@@ -18,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskmanager.R;
+import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.TaskRepository;
@@ -47,11 +48,12 @@ public class EditTaskFragment extends DialogFragment {
     private RadioButton mRdBtnDoneEdit;
     private RadioButton mRdBtnDoingEdit;
     private RadioButton mRdBtnTodoEdit;
-    private Date mDate;
-    private Date mTime;
+    private Date mDate = new Date();
+    private Date mTime= new Date();
     private UUID mTaskId;
     private List<Task> mTaskList;
-    private Date mDateNew;
+    private Date mDateNew = new Date();
+    private State mState;
 
 
     public EditTaskFragment() {
@@ -100,9 +102,8 @@ public class EditTaskFragment extends DialogFragment {
                         mTask.setTitleTask(mTextTitleEdit.getText().toString());
                         mTask.setDescription(mTextDescriptionEdit.getText().toString());
                         mTask.setDateTask(mDateNew);
+                        mTask.setStateTask(mState);
                         sendResult();
-
-
 
 
                     }
@@ -156,6 +157,27 @@ public class EditTaskFragment extends DialogFragment {
 
             }
         });
+        mRdBtnDoingEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mState = State.Doing;
+            }
+        });
+
+        mRdBtnDoneEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mState = State.Done;
+            }
+        });
+
+        mRdBtnTodoEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mState = State.Todo;
+            }
+        });
+
     }
 
     private void setViews(View view) {
@@ -225,17 +247,12 @@ public class EditTaskFragment extends DialogFragment {
             mDate = (Date) data.getSerializableExtra(DateFragment.EXTRA_USER_SELECTED_DATE);
             updateDateTask(mDate);
             mDate = setCalender();
-
         }
         if (requestCode == REQUEST_CODE_TIME_EDIT) {
             mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
             updateDateTask(mTime);
             mTime = setCalender();
         }
-
-
-
-
 
     }
 
