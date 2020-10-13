@@ -40,8 +40,10 @@ import static android.app.Activity.RESULT_OK;
 public class TaskFragment extends Fragment {
 
     public static final String ARGS_USER_ID = "UserId";
-    public static final String TAG_CREATE_TASK = "0";
+    public static final String TAG_CREATE_TASK = "CreateTask";
     public static final int REQUEST_CODE_CREATE_TASK = 0;
+    public static final int REQUEST_CODE_DELETE_ALL_TASKS = 1;
+    public static final String TAG_DELETE_ALL_TASKS = "deleteAllTasks";
     private ViewPager2 mViewPager;
     private TabLayout mTabLayout;
     private IRepositoryUser mRepositoryUser;
@@ -120,7 +122,13 @@ public class TaskFragment extends Fragment {
                 //Todo
                 return true;
             case R.id.delete_all_task:
-                //Todo
+                DeleteTasksFragment deleteTasksFragment = DeleteTasksFragment.newInstance(mIdUser);
+                deleteTasksFragment.setTargetFragment(TaskFragment.this,
+                        REQUEST_CODE_DELETE_ALL_TASKS);
+                deleteTasksFragment.show(getActivity().
+                        getSupportFragmentManager(), TAG_DELETE_ALL_TASKS);
+
+
                 return true;
             case R.id.log_out:
                 getActivity().finish();
@@ -135,6 +143,7 @@ public class TaskFragment extends Fragment {
         mViewPager = view.findViewById(R.id.view_pager_state_task);
         mButtonAdd = view.findViewById(R.id.float_action_add);
     }
+
     private void setListener() {
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,6 +225,14 @@ public class TaskFragment extends Fragment {
             mTasks = mRepositoryTask.getTaskList();
             setListTask();
 
+        } else if (requestCode == REQUEST_CODE_DELETE_ALL_TASKS) {
+            boolean check = data.getBooleanExtra(DeleteTasksFragment.EXTRA_SEND_CHECK_DELETE,
+                    false);
+            if (check) {
+                mTasks = mRepositoryTask.getTaskList();
+                setListTask();
+
+            }
         }
     }
 }

@@ -1,48 +1,46 @@
 package com.example.taskmanager.controller.fragment;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskmanager.R;
+import com.example.taskmanager.model.Task;
+import com.example.taskmanager.repository.IRepositoryTask;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link DeleteTasksFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class DeleteTasksFragment extends Fragment {
+import java.util.List;
+import java.util.UUID;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class DeleteTasksFragment extends DialogFragment {
+
+    public static final String ARGS_USER_ID = "userId";
+    public static final String EXTRA_SEND_CHECK_DELETE = "com.example.taskmanager.sendCheckDelete";
+    private UUID mUserId;
+    private IRepositoryTask mRepositoryTask;
+    private List<Task> mTasks;
+    private boolean mCheckDelete;
+
 
     public DeleteTasksFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment DeleteTasksFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DeleteTasksFragment newInstance(String param1, String param2) {
+
+    public static DeleteTasksFragment newInstance(UUID uuid) {
         DeleteTasksFragment fragment = new DeleteTasksFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ARGS_USER_ID, uuid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,16 +48,53 @@ public class DeleteTasksFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
+        mTasks = mRepositoryTask.getTaskList();
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mUserId = (UUID) getArguments().getSerializable(ARGS_USER_ID);
         }
     }
 
+    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_delete_tasks, container, false);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        //View view = inflater.inflate(R.layout.fragment_edit_task, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.title_dialog_edit)
+                .setMessage(R.string.delete_tasks)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        for (Task taskFind : mTasks) {
+                            if (taskFind.getIdUser().equals(mUserId))
+                                mRepositoryTask.deleteTask(taskFind);
+                        }
+                        mCheckDelete=true;
+                        sendResult();
+
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mCheckDelete=false;
+                        sendResult();
+                        dismiss();
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        return dialog;
+    }
+
+    private void sendResult() {
+        Fragment fragment = getTargetFragment();
+        int requestCode = getTargetRequestCode();
+        int resultCode = Activity.RESULT_OK;
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_SEND_CHECK_DELETE,mCheckDelete);
+        fragment.onActivityResult(requestCode, resultCode, intent);
     }
 }
