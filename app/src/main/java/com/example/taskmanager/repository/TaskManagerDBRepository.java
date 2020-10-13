@@ -5,14 +5,17 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.taskmanager.database.TaskDBHelper;
+import androidx.room.Room;
+
+import com.example.taskmanager.database.TaskDAO;
+import com.example.taskmanager.database.TaskManagerDatabase;
 import com.example.taskmanager.database.TaskManagerSchema;
 import com.example.taskmanager.database.TaskManagerSchema.TaskTable.taskCols;
 import com.example.taskmanager.database.TaskManagerSchema.UserTable.userCols;
+import com.example.taskmanager.database.UserDAO;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +24,21 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
     private SQLiteDatabase mDatabase;
     private static TaskManagerDBRepository sInstance;
 
+    private TaskDAO mTaskDAO;
+    private UserDAO mUserDAO;
+
 
     public TaskManagerDBRepository(Context context) {
         mContext = context.getApplicationContext();
-        TaskDBHelper taskDBHelper = new TaskDBHelper(mContext);
-        mDatabase = taskDBHelper.getWritableDatabase();
+       /* TaskDBHelper taskDBHelper = new TaskDBHelper(mContext);
+        mDatabase = taskDBHelper.getWritableDatabase();*/
+        TaskManagerDatabase taskManagerDatabase = Room.databaseBuilder(mContext,
+                TaskManagerDatabase.class, "taskManager.db")
+                .allowMainThreadQueries()
+                .build();
+
+        mTaskDAO = taskManagerDatabase.getTaskTable();
+        mUserDAO = taskManagerDatabase.getUserTable();
     }
 
     public static TaskManagerDBRepository getInstance(Context context) {
@@ -37,13 +50,14 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
 
     @Override
     public void insertTask(Task task) {
-        ContentValues values = getContentTaskValues(task);
-        mDatabase.insert(TaskManagerSchema.TaskTable.NAME,null,values);
+       /* ContentValues values = getContentTaskValues(task);
+        mDatabase.insert(TaskManagerSchema.TaskTable.NAME,null,values);*/
+        mTaskDAO.insertTask(task);
     }
 
     @Override
     public Task getTask(UUID id) {
-        String where = taskCols.taskUUID + " = ?";
+      /*  String where = taskCols.taskUUID + " = ?";
         String[] whereArgs = new String[]{id.toString()};
 
         TaskCursorWrapper taskCursorWrapper = queryTaskCursor(where, whereArgs);
@@ -56,27 +70,33 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
             return taskCursorWrapper.getTask();
         } finally {
             taskCursorWrapper.close();
-        }
+        }*/
+
+        return mTaskDAO.getTask(id);
     }
 
     @Override
     public void updateTask(Task task) {
-        ContentValues values = getContentTaskValues(task);
+       /* ContentValues values = getContentTaskValues(task);
         String whereClause = taskCols.taskUUID + " = ?";
         String[] whereArgs = new String[]{task.getIdTask().toString()};
-        mDatabase.update(TaskManagerSchema.TaskTable.NAME,values,whereClause,whereArgs);
+        mDatabase.update(TaskManagerSchema.TaskTable.NAME,values,whereClause,whereArgs);*/
+
+        mTaskDAO.updateTask(task);
     }
 
     @Override
     public void deleteTask(Task task) {
-        String whereClause = taskCols.taskUUID + " = ?";
+       /* String whereClause = taskCols.taskUUID + " = ?";
         String[] whereArgs = new String[]{task.getIdTask().toString()};
-        mDatabase.delete(TaskManagerSchema.TaskTable.NAME,whereClause,whereArgs);
+        mDatabase.delete(TaskManagerSchema.TaskTable.NAME,whereClause,whereArgs);*/
+
+        mTaskDAO.deleteTask(task);
     }
 
     @Override
     public List<Task> getTaskList() {
-        List<Task> tasks = new ArrayList<>();
+     /*   List<Task> tasks = new ArrayList<>();
         TaskCursorWrapper taskCursorWrapper = queryTaskCursor(null, null);
         if (taskCursorWrapper == null || taskCursorWrapper.getCount() == 0)
             return tasks;
@@ -90,13 +110,19 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
 
         } finally {
             taskCursorWrapper.close();
-        }
-        return tasks;
+        }*/
+        return mTaskDAO.getTaskList();
+    }
+
+    @Override
+    public Task getTaskUser(UUID idUser) {
+        /*return mTaskDAO.getTaskUser(idUser);*/
+        return null;
     }
 
     @Override
     public List<User> getUserList() {
-        List<User> users = new ArrayList<>();
+       /* List<User> users = new ArrayList<>();
         UserCursorWrapper userCursorWrapper  = queryUserCursor(null, null);
         if (userCursorWrapper == null || userCursorWrapper.getCount() == 0)
             return users;
@@ -111,13 +137,13 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
 
         } finally {
             userCursorWrapper.close();
-        }
-        return users;
+        }*/
+        return mUserDAO.getUserList();
     }
 
     @Override
     public User getUser(UUID userId) {
-        String where = userCols.userUUID + " = ?";
+  /*      String where = userCols.userUUID + " = ?";
         String[] whereArgs = new String[]{userId.toString()};
 
         UserCursorWrapper userCursorWrapper = queryUserCursor(where,whereArgs);
@@ -131,25 +157,28 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
             return userCursorWrapper.getUser();
         } finally {
             userCursorWrapper.close();
-        }
+        }*/
+        return mUserDAO.getUser(userId);
     }
 
     @Override
     public void insertUser(User user) {
-        ContentValues values = getContentUserValues(user);
-        mDatabase.insert(TaskManagerSchema.UserTable.NAME,null,values);
+       /* ContentValues values = getContentUserValues(user);
+        mDatabase.insert(TaskManagerSchema.UserTable.NAME, null, values);*/
+       mUserDAO.insertUser(user);
     }
 
     @Override
     public void deleteUser(User user) {
-        String whereClause = userCols.userUUID + " = ?";
+      /*  String whereClause = userCols.userUUID + " = ?";
         String[] whereArgs = new String[]{user.getIDUser().toString()};
-        mDatabase.delete(TaskManagerSchema.UserTable.NAME,whereClause,whereArgs);
+        mDatabase.delete(TaskManagerSchema.UserTable.NAME, whereClause, whereArgs);*/
+      mUserDAO.deleteUser(user);
     }
 
     @Override
     public int getPosition(UUID userId) {
-        List<User> users= getUserList();
+        List<User> users = getUserList();
         for (int i = 0; i < users.size(); i++) {
             if (users.get(i).getIDUser().equals(userId))
                 return i;
@@ -186,10 +215,10 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
     }
 
 
-    private ContentValues getContentTaskValues(Task task ) {
+    private ContentValues getContentTaskValues(Task task) {
         ContentValues values = new ContentValues();
         values.put(taskCols.taskUUID, task.getIdTask().toString());
-        values.put(taskCols.userUUID,task.getIdUser().toString());
+        values.put(taskCols.userUUID, task.getIdUser().toString());
         values.put(taskCols.title, task.getTitleTask());
         values.put(taskCols.date, task.getDateTask().getTime());
         values.put(taskCols.description, task.getDescription());
@@ -197,11 +226,11 @@ public class TaskManagerDBRepository implements IRepositoryUser, IRepositoryTask
         return values;
     }
 
-    private ContentValues getContentUserValues(User user ) {
+    private ContentValues getContentUserValues(User user) {
         ContentValues values = new ContentValues();
-        values.put(userCols.userUUID,user.getIDUser().toString());
-        values.put(userCols.userName,user.getUsername());
-        values.put(userCols.password,user.getPassword());
+        values.put(userCols.userUUID, user.getIDUser().toString());
+        values.put(userCols.userName, user.getUsername());
+        values.put(userCols.password, user.getPassword());
         return values;
     }
 }

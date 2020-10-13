@@ -28,7 +28,7 @@ public interface TaskDAO {
     @Query("SELECT * FROM TaskTable WHERE uuidTask=:id")
     Task getTask(UUID id);
 
-   /* @Query("SELECT * FROM TaskTable WHERE uuidUser =:idUser")
+  /*  @Query("SELECT * FROM TaskTable WHERE uuidUser =:idUser")
     Task getTaskUser(UUID idUser);*/
 
 
