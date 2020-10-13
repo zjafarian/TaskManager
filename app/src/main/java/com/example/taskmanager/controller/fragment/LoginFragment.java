@@ -20,7 +20,7 @@ import com.example.taskmanager.controller.activity.SignUpActivity;
 import com.example.taskmanager.controller.activity.TaskActivity;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryUser;
-import com.example.taskmanager.repository.UserRepository;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ public class LoginFragment extends Fragment {
     public static final String ARGS_REPOSITORY_USER_LOGIN = "args_repository_user_login";
     public static final String SAVE_USER_NAME_LOGIN = "saveUserNameLogin";
     public static final String SAVE_PASSWORD_LOGIN = "savePasswordLogin";
-    public static final String SAVE_REPOSITORY_USER_LOGIN = "saveRepositoryUserLogin";
     public static final String ARGS_ID_USER = "argsIdUser";
     public static final String SAVE_ID_USER = "save_id_user";
     public static final int REQUEST_CODE_SING_UP = 0;
@@ -65,7 +64,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRepositoryUser = UserRepository.getInstance();
+        mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mUsers = mRepositoryUser.getUserList();
 
         //this is storage of this fragment
@@ -84,8 +83,6 @@ public class LoginFragment extends Fragment {
         if (savedInstanceState != null) {
             username = savedInstanceState.getString(SAVE_USER_NAME_LOGIN);
             password = savedInstanceState.getString(SAVE_PASSWORD_LOGIN);
-            mRepositoryUser = (IRepositoryUser)
-                    savedInstanceState.getSerializable(SAVE_REPOSITORY_USER_LOGIN);
             mUsers = mRepositoryUser.getUserList();
             mUserId = (UUID) savedInstanceState.getSerializable(SAVE_ID_USER);
             for (User user1 : mUsers) {
@@ -124,7 +121,6 @@ public class LoginFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putString(SAVE_USER_NAME_LOGIN, username);
         outState.putString(SAVE_PASSWORD_LOGIN, password);
-        outState.putSerializable(SAVE_REPOSITORY_USER_LOGIN, mRepositoryUser);
         outState.putSerializable(SAVE_ID_USER, mUserId);
     }
 
@@ -144,14 +140,20 @@ public class LoginFragment extends Fragment {
                 password = mPasswordLogin.getText().toString().trim();
                 mUsers = mRepositoryUser.getUserList();
 
-                if (mUsers.size() == 1) {
-                    if (username.equals("admin") && password.equals("admin")) {
-                        for (User userFind : mUsers) {
-                            if (userFind.getUsername().equals(username)
-                                    && userFind.getPassword().equals(password)) {
-                                mUserId = userFind.getIDUser();
-                            }
+                if (username.matches("") || password.matches("")) {
+                    Toast toast = Toast.makeText(getActivity(), R.string.message_signup,
+                            Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.BOTTOM, 0, 0);
+                    toast.show();
+                } else {
+                    for (User userFind : mUsers) {
+                        if (userFind.getUsername().equals(username)
+                                && userFind.getPassword().equals(password)) {
+                            mUserId = userFind.getIDUser();
+                            mCheck = true;
                         }
+                    }
+                    if (mCheck) {
                         Intent intent =
                                 TaskActivity.newIntent(getActivity(), mUserId);
                         startActivity(intent);
@@ -160,31 +162,6 @@ public class LoginFragment extends Fragment {
                                 "username or password is wrong", Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.BOTTOM, 0, 0);
                         toast.show();
-                    }
-                } else {
-                    if (username.matches("") || password.matches("")) {
-                        Toast toast = Toast.makeText(getActivity(), R.string.message_signup,
-                                Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.BOTTOM, 0, 0);
-                        toast.show();
-                    } else {
-                        for (User userFind : mUsers) {
-                            if (userFind.getUsername().equals(username)
-                                    && userFind.getPassword().equals(password)) {
-                                mUserId = userFind.getIDUser();
-                                mCheck = true;
-                            }
-                        }
-                        if (mCheck) {
-                            Intent intent =
-                                    TaskActivity.newIntent(getActivity(), mUserId);
-                            startActivity(intent);
-                        } else {
-                            Toast toast = Toast.makeText(getActivity(),
-                                    "username or password is wrong", Toast.LENGTH_LONG);
-                            toast.setGravity(Gravity.BOTTOM, 0, 0);
-                            toast.show();
-                        }
                     }
                 }
             }

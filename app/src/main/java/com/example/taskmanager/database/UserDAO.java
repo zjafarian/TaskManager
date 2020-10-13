@@ -4,7 +4,6 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
 
 import com.example.taskmanager.model.User;
 
@@ -16,8 +15,6 @@ public interface UserDAO {
 
     @Insert
     void insertUser(User user);
-
-    @Update
 
     @Delete
     void deleteUser(User user);

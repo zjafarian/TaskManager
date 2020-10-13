@@ -27,6 +27,11 @@ public class TaskRepository implements IRepositoryTask {
         return mTaskList;
     }
 
+    @Override
+    public Task getTaskUser(UUID idUser) {
+        return null;
+    }
+
     public void setTaskList(List<Task> taskList) {
         mTaskList = taskList;
     }

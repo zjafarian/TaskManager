@@ -21,7 +21,7 @@ import com.example.taskmanager.R;
 import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.IRepositoryTask;
-import com.example.taskmanager.repository.TaskRepository;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
@@ -36,7 +36,9 @@ public class EditTaskFragment extends DialogFragment {
     public static final int REQUEST_CODE_DATE_EDIT = 0;
     public static final int REQUEST_CODE_TIME_EDIT = 1;
     public static final String ARGS_TASK_ID = "TaskId";
-    public static final String EXTRA_SEND_TASK = "com.example.taskmanager.SendTask";
+    public static final String EXTRA_SEND_STATE = "com.example.taskmanager.sendState";
+    public static final String EXTRA_SEND_TASK_ID = "com.example.taskmanager.sendTaskId";
+    public static final String EXTRA_SEND_CHECK_DELETE = "com.example.taskmanager.sendCheckDelete";
     private Task mTask;
     private IRepositoryTask mRepositoryTask;
     private TextInputEditText mTextTitleEdit;
@@ -49,11 +51,12 @@ public class EditTaskFragment extends DialogFragment {
     private RadioButton mRdBtnDoingEdit;
     private RadioButton mRdBtnTodoEdit;
     private Date mDate = new Date();
-    private Date mTime= new Date();
+    private Date mTime = new Date();
     private UUID mTaskId;
     private List<Task> mTaskList;
     private Date mDateNew = new Date();
     private State mState;
+    private boolean mCheckDelete = false;
 
 
     public EditTaskFragment() {
@@ -72,12 +75,12 @@ public class EditTaskFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRepositoryTask = TaskRepository.getInstance();
+        mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
         mTaskList = mRepositoryTask.getTaskList();
         if (getArguments() != null) {
             mTaskId = (UUID) getArguments().getSerializable(ARGS_TASK_ID);
         }
-        for (Task taskFind:mTaskList) {
+        for (Task taskFind : mTaskList) {
             if (taskFind.getIdTask().equals(mTaskId))
                 mTask = taskFind;
         }
@@ -94,24 +97,22 @@ public class EditTaskFragment extends DialogFragment {
         setListener();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.title_dialog_create)
+                .setTitle(R.string.title_dialog_edit)
                 .setView(view)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mTask.setTitleTask(mTextTitleEdit.getText().toString());
-                        mTask.setDescription(mTextDescriptionEdit.getText().toString());
-                        mTask.setDateTask(mDateNew);
-                        mTask.setStateTask(mState);
+                        editTask();
+                        updateTask();
                         sendResult();
-
-
                     }
                 })
                 .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
+                        mRepositoryTask.deleteTask(mTask);
+                        mCheckDelete = true;
+                        sendResult();
                     }
                 });
 
@@ -119,15 +120,29 @@ public class EditTaskFragment extends DialogFragment {
         return dialog;
 
     }
+
+    private void editTask() {
+        mTask.setTitleTask(mTextTitleEdit.getText().toString());
+        mTask.setDescription(mTextDescriptionEdit.getText().toString());
+        mTask.setDateTask(mDateNew);
+        mTask.setStateTask(mState);
+
+    }
+
     private void sendResult() {
         Fragment fragment = getTargetFragment();
         int requestCode = getTargetRequestCode();
         int resultCode = Activity.RESULT_OK;
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_SEND_TASK,mTask);
+        intent.putExtra(EXTRA_SEND_STATE, mState);
+        intent.putExtra(EXTRA_SEND_TASK_ID, mTaskId);
+        intent.putExtra(EXTRA_SEND_CHECK_DELETE,mCheckDelete);
         fragment.onActivityResult(requestCode, resultCode, intent);
     }
 
+    private void updateTask() {
+        mRepositoryTask.updateTask(mTask);
+    }
 
 
     private void setListener() {
@@ -288,4 +303,5 @@ public class EditTaskFragment extends DialogFragment {
 
         return calendar.getTime();
     }
+
 }

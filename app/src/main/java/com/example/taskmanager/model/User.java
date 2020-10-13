@@ -4,11 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 @Entity (tableName = "UserTable")
-public class User implements Serializable {
+public class User {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "idUser")
     private int mId;
@@ -30,6 +29,7 @@ public class User implements Serializable {
 
     public User(String username, String password) {
         mIDUser = UUID.randomUUID();
+        mDate = new Date();
         mUsername = username;
         mPassword = password;
     }

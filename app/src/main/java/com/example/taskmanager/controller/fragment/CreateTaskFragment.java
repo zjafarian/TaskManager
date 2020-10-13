@@ -35,7 +35,6 @@ public class CreateTaskFragment extends DialogFragment {
     public static final String EXTRA_SEND_DESCRIPTION = "com.example.taskmanager.send description";
     public static final String EXTRA_SEND_STATE = "com.example.taskmanager.send state";
     public static final String EXTRA_SEND_DATE = "com.example.taskmanager.send date";
-    public static final String ARGS_USER_ID = "UserId";
     private TextInputEditText mTextTitleCreate;
     private TextInputEditText mTextDescriptionCreate;
     private Button mButtonDateCreate;

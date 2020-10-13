@@ -4,11 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 @Entity(tableName = "TaskTable")
-public class Task implements Serializable {
+public class Task {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "idTask")
@@ -36,8 +35,8 @@ public class Task implements Serializable {
     private Date mDateTask = new Date();
 
 
-
-
+    public Task() {
+    }
 
     public Task(String title, String description, State stateTask, UUID idUser) {
         mIdTask = UUID.randomUUID();

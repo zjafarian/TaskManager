@@ -23,8 +23,7 @@ import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
-import com.example.taskmanager.repository.TaskRepository;
-import com.example.taskmanager.repository.UserRepository;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -73,8 +72,8 @@ public class TaskFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mRepositoryTask = TaskRepository.getInstance();
-        mRepositoryUser = UserRepository.getInstance();
+        mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
+        mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mTasks = mRepositoryTask.getTaskList();
         mUsers = mRepositoryUser.getUserList();
 
@@ -124,7 +123,7 @@ public class TaskFragment extends Fragment {
                 //Todo
                 return true;
             case R.id.log_out:
-                //Todo
+                getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

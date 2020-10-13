@@ -21,8 +21,7 @@ import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.IRepositoryUser;
-import com.example.taskmanager.repository.TaskRepository;
-import com.example.taskmanager.repository.UserRepository;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +50,7 @@ public class TaskListFragment extends Fragment {
     private IRepositoryUser mRepositoryUser;
     private List<User> mUsers;
     private Task mTask;
+    private State mStateBefore;
 
     public TaskListFragment() {
         // Required empty public constructor
@@ -61,7 +61,7 @@ public class TaskListFragment extends Fragment {
         TaskListFragment fragment = new TaskListFragment();
         Bundle args = new Bundle();
         args.putInt(ARGS_INDEX, index);
-        args.putSerializable(ARGS_USER_ID,uuid);
+        args.putSerializable(ARGS_USER_ID, uuid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,11 +69,10 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRepositoryUser = UserRepository.getInstance();
+        mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mUsers = mRepositoryUser.getUserList();
-        mRepositoryTask = TaskRepository.getInstance();
+        mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
         mTasks = mRepositoryTask.getTaskList();
-
 
 
         //this is storage of this fragment
@@ -138,7 +137,7 @@ public class TaskListFragment extends Fragment {
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (mTaskAdapter == null) {
-            switch (mIndex){
+            switch (mIndex) {
                 case 0:
                     mTaskAdapter = new TaskAdapter(mTasksTodo);
                     break;
@@ -152,7 +151,7 @@ public class TaskListFragment extends Fragment {
             mRecyclerView.setAdapter(mTaskAdapter);
 
         } else {
-            switch (mIndex){
+            switch (mIndex) {
                 case 0:
                     mTaskAdapter.setTasksAdapter(mTasksTodo);
                     break;
@@ -185,6 +184,7 @@ public class TaskListFragment extends Fragment {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    mStateBefore = mTaskHolder.getStateTask();
                     EditTaskFragment editTaskFragment =
                             EditTaskFragment.newInstance(mTaskHolder.getIdTask());
                     editTaskFragment.setTargetFragment(TaskListFragment.this,
@@ -259,19 +259,68 @@ public class TaskListFragment extends Fragment {
             return;
 
 
-
         if (requestCode == REQUEST_CODE_EDIT) {
-            mTask = (Task) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_TASK);
-            updateTask();
-            mTasks = mRepositoryTask.getTaskList();
-            mTasksTodo.clear();
-            mTasksDoing.clear();
-            mTasksDone.clear();
-            selectAdminOrUser();
-            initViews();
+            UUID idTask;
+            boolean check = data.getBooleanExtra(EditTaskFragment.EXTRA_SEND_CHECK_DELETE,
+                    false);
+            if(!check){
+                idTask = (UUID) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_TASK_ID);
+                for (Task taskFind : mTasks) {
+                    if (taskFind.getIdTask().equals(idTask))
+                        mTask = taskFind;
+
+                }
+                mTasks = mRepositoryTask.getTaskList();
+                requestEditTask();
+
+            } else {
+                mTasks=mRepositoryTask.getTaskList();
+                mTasksTodo.clear();
+                mTasksDoing.clear();
+                mTasksDone.clear();
+                selectAdminOrUser();
+                setAdapterTaskBefore();
+                mTaskAdapter.notifyDataSetChanged();
+
+            }
+
 
         }
 
 
+    }
+
+    private void requestEditTask() {
+        mTasksTodo.clear();
+        mTasksDoing.clear();
+        mTasksDone.clear();
+        selectAdminOrUser();
+        setAdapterTaskBefore();
+        switch (mTask.getStateTask()){
+            case Todo:
+                mTaskAdapter.setTasksAdapter(mTasksTodo);
+                break;
+            case Done:
+                mTaskAdapter.setTasksAdapter(mTasksDone);
+                break;
+            case Doing:
+                mTaskAdapter.setTasksAdapter(mTasksDoing);
+                break;
+        }
+        mTaskAdapter.notifyDataSetChanged();
+    }
+
+    private void setAdapterTaskBefore() {
+        switch (mStateBefore){
+            case Todo:
+                mTaskAdapter.setTasksAdapter(mTasksTodo);
+                break;
+            case Done:
+                mTaskAdapter.setTasksAdapter(mTasksDone);
+                break;
+            case Doing:
+                mTaskAdapter.setTasksAdapter(mTasksDoing);
+                break;
+        }
     }
 }

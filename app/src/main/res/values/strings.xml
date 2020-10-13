@@ -25,6 +25,7 @@
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="title_dialog_create">Create Task</string>
+    <string name="title_dialog_edit">Edit Task</string>
     <string name="btn_edit_test">Edit</string>
     <string name="delete_all_tasks">Delete All Tasks</string>
     <string name="show_all_users">Show All Users</string>

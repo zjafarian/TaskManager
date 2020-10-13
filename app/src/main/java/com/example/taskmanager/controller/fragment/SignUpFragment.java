@@ -17,7 +17,7 @@ import com.example.taskmanager.R;
 import com.example.taskmanager.controller.activity.LoginActivity;
 import com.example.taskmanager.model.User;
 import com.example.taskmanager.repository.IRepositoryUser;
-import com.example.taskmanager.repository.UserRepository;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mRepositoryUser = UserRepository.getInstance();
+        mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         //this is storage of this fragment
         password = getArguments().getString(ARGS_PASSWORD_SIGN_UP);
         username = getArguments().getString(ARGS_USERNAME_SING_UP);
