@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 
 import com.example.taskmanager.model.User;
-import com.example.taskmanager.database2.TaskManagerSchema.UserTable.userCols;
+import com.example.taskmanager.database.TaskManagerSchema.UserTable.userCols;
 
 import java.util.UUID;
 

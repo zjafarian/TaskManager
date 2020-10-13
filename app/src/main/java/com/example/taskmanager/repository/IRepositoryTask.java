@@ -13,5 +13,5 @@ public interface IRepositoryTask extends Serializable {
     void deleteTask (Task task);
     int getPosition (UUID taskId);
     List<Task> getTaskList();
-
+    Task getTaskUser (UUID idUser);
 }

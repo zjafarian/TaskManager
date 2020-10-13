@@ -1,4 +1,4 @@
-package com.example.taskmanager.database2;
+package com.example.taskmanager.database;
 
 public class TaskManagerSchema {
     public static final String NAME = "taskManager.db";

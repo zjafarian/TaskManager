@@ -5,10 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.taskmanager.database2.TaskDBHelper;
-import com.example.taskmanager.database2.TaskManagerSchema;
-import com.example.taskmanager.database2.TaskManagerSchema.TaskTable.taskCols;
-import com.example.taskmanager.database2.TaskManagerSchema.UserTable.userCols;
+import com.example.taskmanager.database.TaskDBHelper;
+import com.example.taskmanager.database.TaskManagerSchema;
+import com.example.taskmanager.database.TaskManagerSchema.TaskTable.taskCols;
+import com.example.taskmanager.database.TaskManagerSchema.UserTable.userCols;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
 

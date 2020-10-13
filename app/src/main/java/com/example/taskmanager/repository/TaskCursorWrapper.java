@@ -3,7 +3,7 @@ package com.example.taskmanager.repository;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 
-import com.example.taskmanager.database2.TaskManagerSchema.TaskTable.taskCols;
+import com.example.taskmanager.database.TaskManagerSchema.TaskTable.taskCols;
 import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 
