@@ -31,5 +31,8 @@
     <string name="show_all_users">Show All Users</string>
     <string name="log_out">Logout</string>
     <string name="delete_tasks">Are You Sure to Delete All Your Tasks?</string>
+    <string name="registration_date">Registration Date is %s</string>
+    <string name="number_tasks">Number of Tasks is %s</string>
+
 
 </resources>
