@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 
-public class ListAllTasksFragment extends Fragment {
+public class ListAllUsersFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private IRepositoryTask mRepositoryTask;
@@ -33,13 +33,13 @@ public class ListAllTasksFragment extends Fragment {
     private UserAdapter mUserAdapter;
 
 
-    public ListAllTasksFragment() {
+    public ListAllUsersFragment() {
         // Required empty public constructor
     }
 
 
-    public static ListAllTasksFragment newInstance() {
-        ListAllTasksFragment fragment = new ListAllTasksFragment();
+    public static ListAllUsersFragment newInstance() {
+        ListAllUsersFragment fragment = new ListAllUsersFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -62,7 +62,7 @@ public class ListAllTasksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_list_all_tasks,
+        View view = inflater.inflate(R.layout.fragment_list_all_users,
                 container, false);
         findViews(view);
         initViews();
@@ -73,7 +73,7 @@ public class ListAllTasksFragment extends Fragment {
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (mUserAdapter == null) {
-            mUserAdapter = new ListAllTasksFragment.UserAdapter(mUsers);
+            mUserAdapter = new ListAllUsersFragment.UserAdapter(mUsers);
             mRecyclerView.setAdapter(mUserAdapter);
 
         }
@@ -137,7 +137,7 @@ public class ListAllTasksFragment extends Fragment {
         }
     }
 
-    private class UserAdapter extends RecyclerView.Adapter<ListAllTasksFragment.UserHolder>{
+    private class UserAdapter extends RecyclerView.Adapter<ListAllUsersFragment.UserHolder>{
         private List<User> mUsersAdapter;
 
         public UserAdapter(List<User> usersAdapter) {
@@ -157,7 +157,7 @@ public class ListAllTasksFragment extends Fragment {
         public UserHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
             View view = layoutInflater.inflate(R.layout.row_task, parent, false);
-            ListAllTasksFragment.UserHolder userHolder = new ListAllTasksFragment.UserHolder(view);
+            ListAllUsersFragment.UserHolder userHolder = new ListAllUsersFragment.UserHolder(view);
             return userHolder;
         }
 

@@ -119,7 +119,8 @@ public class TaskFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.show_users:
-                //Todo
+
+
                 return true;
             case R.id.delete_all_task:
                 DeleteTasksFragment deleteTasksFragment = DeleteTasksFragment.newInstance(mIdUser);
@@ -127,8 +128,6 @@ public class TaskFragment extends Fragment {
                         REQUEST_CODE_DELETE_ALL_TASKS);
                 deleteTasksFragment.show(getActivity().
                         getSupportFragmentManager(), TAG_DELETE_ALL_TASKS);
-
-
                 return true;
             case R.id.log_out:
                 getActivity().finish();
