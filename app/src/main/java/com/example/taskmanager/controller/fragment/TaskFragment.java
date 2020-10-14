@@ -18,6 +18,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.taskmanager.R;
+import com.example.taskmanager.controller.activity.ListAllUsersActivity;
 import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.model.User;
@@ -44,6 +45,7 @@ public class TaskFragment extends Fragment {
     public static final int REQUEST_CODE_CREATE_TASK = 0;
     public static final int REQUEST_CODE_DELETE_ALL_TASKS = 1;
     public static final String TAG_DELETE_ALL_TASKS = "deleteAllTasks";
+    public static final int REQUEST_CODE_SHOW_USERS = 2;
     private ViewPager2 mViewPager;
     private TabLayout mTabLayout;
     private IRepositoryUser mRepositoryUser;
@@ -119,8 +121,8 @@ public class TaskFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.show_users:
-
-
+                Intent intent = ListAllUsersActivity.newIntent(getActivity());
+                startActivityForResult(intent, REQUEST_CODE_SHOW_USERS);
                 return true;
             case R.id.delete_all_task:
                 DeleteTasksFragment deleteTasksFragment = DeleteTasksFragment.newInstance(mIdUser);
@@ -232,6 +234,9 @@ public class TaskFragment extends Fragment {
                 setListTask();
 
             }
+        } else if (requestCode== REQUEST_CODE_SHOW_USERS){
+            mTasks = mRepositoryTask.getTaskList();
+            setListTask();
         }
     }
 }
