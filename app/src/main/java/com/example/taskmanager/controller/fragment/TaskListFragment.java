@@ -3,14 +3,20 @@ package com.example.taskmanager.controller.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +30,7 @@ import com.example.taskmanager.repository.IRepositoryUser;
 import com.example.taskmanager.repository.TaskManagerDBRepository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +76,8 @@ public class TaskListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mUsers = mRepositoryUser.getUserList();
         mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
@@ -86,6 +95,29 @@ public class TaskListFragment extends Fragment {
                 mUser = user;
         }
         selectAdminOrUser();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_list_task, menu);
+        MenuItem itemSearch = menu.findItem(R.id.app_bar_search);
+        SearchView searchView = (SearchView) itemSearch.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mTaskAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+
+
+
     }
 
     private void selectAdminOrUser() {
@@ -212,11 +244,14 @@ public class TaskListFragment extends Fragment {
 
     }
 
-    private class TaskAdapter extends RecyclerView.Adapter<TaskListFragment.TaskHolder> {
+    private class TaskAdapter extends RecyclerView.Adapter<TaskListFragment.TaskHolder> implements Filterable {
         private List<Task> mTasksAdapter;
+        private List<Task> mTaskListAll;
 
         public TaskAdapter(List<Task> taskList) {
             mTasksAdapter = taskList;
+            mTaskListAll = new ArrayList<>(taskList);
+
         }
 
         public List<Task> getTasksAdapter() {
@@ -246,6 +281,41 @@ public class TaskListFragment extends Fragment {
         public int getItemCount() {
             return mTasksAdapter.size();
         }
+
+        @Override
+        public Filter getFilter() {
+            return filter;
+        }
+
+        Filter filter = new Filter() {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Task> mTasksFilter = new ArrayList<>();
+                if (constraint.toString().isEmpty()) {
+                    mTasksFilter.addAll(mTaskListAll);
+                } else {
+                    for (Task task : mTaskListAll) {
+                        if (task.getTitleTask().contains(constraint.toString().toLowerCase()) ||
+                                task.getDescription().contains(constraint.toString().toLowerCase()))
+                            mTasksFilter.add(task);
+                    }
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mTasksFilter;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                mTasksAdapter.clear();
+                mTasksAdapter.addAll((Collection<? extends Task>) results.values);
+                notifyDataSetChanged();
+
+            }
+        };
+
+
     }
 
     private void updateTask() {
@@ -263,7 +333,7 @@ public class TaskListFragment extends Fragment {
             UUID idTask;
             boolean check = data.getBooleanExtra(EditTaskFragment.EXTRA_SEND_CHECK_DELETE,
                     false);
-            if(!check){
+            if (!check) {
                 idTask = (UUID) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_TASK_ID);
                 for (Task taskFind : mTasks) {
                     if (taskFind.getIdTask().equals(idTask))
@@ -274,7 +344,7 @@ public class TaskListFragment extends Fragment {
                 requestEditTask();
 
             } else {
-                mTasks=mRepositoryTask.getTaskList();
+                mTasks = mRepositoryTask.getTaskList();
                 mTasksTodo.clear();
                 mTasksDoing.clear();
                 mTasksDone.clear();
@@ -296,7 +366,7 @@ public class TaskListFragment extends Fragment {
         mTasksDone.clear();
         selectAdminOrUser();
         setAdapterTaskBefore();
-        switch (mTask.getStateTask()){
+        switch (mTask.getStateTask()) {
             case Todo:
                 mTaskAdapter.setTasksAdapter(mTasksTodo);
                 break;
@@ -311,7 +381,7 @@ public class TaskListFragment extends Fragment {
     }
 
     private void setAdapterTaskBefore() {
-        switch (mStateBefore){
+        switch (mStateBefore) {
             case Todo:
                 mTaskAdapter.setTasksAdapter(mTasksTodo);
                 break;

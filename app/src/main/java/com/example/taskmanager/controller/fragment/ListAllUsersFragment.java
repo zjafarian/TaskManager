@@ -76,9 +76,10 @@ public class ListAllUsersFragment extends Fragment {
             mUserAdapter = new ListAllUsersFragment.UserAdapter(mUsers);
             mRecyclerView.setAdapter(mUserAdapter);
 
+        } else {
+            mUserAdapter.setUsersAdapter(mUsers);
+            mUserAdapter.notifyDataSetChanged();
         }
-        mUserAdapter.setUsersAdapter(mUsers);
-        mUserAdapter.notifyDataSetChanged();
     }
 
     private void findViews(View view) {
@@ -103,12 +104,14 @@ public class ListAllUsersFragment extends Fragment {
             mButtonDeleteUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for (Task taskFind:mTasks) {
+                    for (Task taskFind : mTasks) {
                         if (taskFind.getIdUser().equals(mUser.getIDUser()))
                             mRepositoryTask.deleteTask(taskFind);
 
                     }
                     mRepositoryUser.deleteUser(mUser);
+                    mUsers = mRepositoryUser.getUserList();
+                    initViews();
                 }
             });
         }
@@ -121,23 +124,23 @@ public class ListAllUsersFragment extends Fragment {
         }
 
         public void bindUser(User user) {
-            int counter=0;
+            int counter = 0;
             mUser = user;
             mTextViewUserName.setText(user.getUsername());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:SS");
-            String date =simpleDateFormat.format(user.getDate());
+            String date = simpleDateFormat.format(user.getDate());
             date = getString(R.string.registration_date, date);
             mTextViewDateRegister.setText(date);
-            for (Task taskFind: mTasks) {
+            for (Task taskFind : mTasks) {
                 if (taskFind.getIdUser().equals(user.getIDUser()))
                     counter++;
             }
-            String number = getString(R.string.number_tasks,String.valueOf(counter));
+            String number = getString(R.string.number_tasks, String.valueOf(counter));
             mTextViewNumberOfTasks.setText(number);
         }
     }
 
-    private class UserAdapter extends RecyclerView.Adapter<ListAllUsersFragment.UserHolder>{
+    private class UserAdapter extends RecyclerView.Adapter<ListAllUsersFragment.UserHolder> {
         private List<User> mUsersAdapter;
 
         public UserAdapter(List<User> usersAdapter) {
@@ -164,7 +167,8 @@ public class ListAllUsersFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull UserHolder holder, int position) {
             User user = mUsersAdapter.get(position);
-            holder.bindUser(user);
+            if (!user.getUsername().equals("admin") && !user.getPassword().equals("admin"))
+                holder.bindUser(user);
         }
 
         @Override

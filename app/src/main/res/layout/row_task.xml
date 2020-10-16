@@ -23,8 +23,7 @@
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/textView_userName"
-        android:layout_toRightOf="@+id/textView_userName"
+        android:layout_below="@+id/textView_userName"
         android:gravity="center"
         android:padding="5dp"
         android:text="@string/registration_date" />
@@ -34,7 +33,7 @@
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_userName"
+        android:layout_below="@+id/textView_date_register"
         android:gravity="center"
         android:padding="5dp"
         android:text="@string/number_tasks" />
@@ -43,9 +42,8 @@
         android:id="@+id/btn_delete_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView_date_register"
-        android:layout_toEndOf="@+id/textView_number_tasks"
-        android:layout_toRightOf="@+id/textView_number_tasks"
+        android:layout_below="@+id/textView_number_tasks"
+
         android:text="@string/delete" />
 
     <View
