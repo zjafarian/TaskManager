@@ -11,8 +11,20 @@
         android:id="@+id/btn_first_title_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true" />
+
+
+    <TextView
+        android:id="@+id/text_title_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:padding="10dp"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textStyle="bold"
+        tools:text="title task" />
 
     <TextView
         android:id="@+id/text_date_task"
@@ -25,24 +37,15 @@
         android:textStyle="bold"
         tools:text="date task" />
 
-    <TextView
-        android:id="@+id/text_title_task"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:padding="10dp"
-        android:textColor="@color/design_default_color_on_secondary"
-        android:textStyle="bold"
-        tools:text="title task"
-        android:layout_alignParentEnd="true" />
+
 
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
-        android:layout_below="@+id/text_date_task"
-        android:layout_marginTop="2dp"/>
+        android:layout_below="@+id/btn_share"
+        android:layout_marginTop="2dp"
+        android:background="?android:attr/listDivider" />
 
 
 </RelativeLayout>

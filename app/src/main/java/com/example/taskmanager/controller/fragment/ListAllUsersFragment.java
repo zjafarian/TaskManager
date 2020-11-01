@@ -20,6 +20,7 @@ import com.example.taskmanager.repository.TaskManagerDBRepository;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,6 +32,7 @@ public class ListAllUsersFragment extends Fragment {
     private List<Task> mTasks;
     private List<User> mUsers;
     private UserAdapter mUserAdapter;
+    private List<User> mUserListForAdapter = new ArrayList<>();
 
 
     public ListAllUsersFragment() {
@@ -52,6 +54,11 @@ public class ListAllUsersFragment extends Fragment {
         mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mTasks = mRepositoryTask.getTaskList();
         mUsers = mRepositoryUser.getUserList();
+        for (User userFind:mUsers) {
+            if (!userFind.getUsername().equals("admin") && !userFind.getPassword().equals("admin"))
+                mUserListForAdapter.add(userFind);
+
+        }
 
         if (getArguments() != null) {
 
@@ -73,11 +80,11 @@ public class ListAllUsersFragment extends Fragment {
     private void initViews() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (mUserAdapter == null) {
-            mUserAdapter = new ListAllUsersFragment.UserAdapter(mUsers);
+            mUserAdapter = new ListAllUsersFragment.UserAdapter(mUserListForAdapter);
             mRecyclerView.setAdapter(mUserAdapter);
 
         } else {
-            mUserAdapter.setUsersAdapter(mUsers);
+            mUserAdapter.setUsersAdapter(mUserListForAdapter);
             mUserAdapter.notifyDataSetChanged();
         }
     }
@@ -111,6 +118,12 @@ public class ListAllUsersFragment extends Fragment {
                     }
                     mRepositoryUser.deleteUser(mUser);
                     mUsers = mRepositoryUser.getUserList();
+                    mUserListForAdapter.clear();
+                    for (User userFind:mUsers) {
+                        if (!userFind.getUsername().equals("admin") && !userFind.getPassword().equals("admin"))
+                            mUserListForAdapter.add(userFind);
+
+                    }
                     initViews();
                 }
             });
@@ -159,7 +172,7 @@ public class ListAllUsersFragment extends Fragment {
         @Override
         public UserHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            View view = layoutInflater.inflate(R.layout.row_task, parent, false);
+            View view = layoutInflater.inflate(R.layout.row_user, parent, false);
             ListAllUsersFragment.UserHolder userHolder = new ListAllUsersFragment.UserHolder(view);
             return userHolder;
         }

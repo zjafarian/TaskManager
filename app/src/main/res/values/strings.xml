@@ -33,6 +33,9 @@
     <string name="delete_tasks">Are You Sure to Delete All Your Tasks?</string>
     <string name="registration_date">Registration Date is %s</string>
     <string name="number_tasks">Number of Tasks is %s</string>
+    <string name="share_task">Share Task</string>
+    <string name="task_share_subject">Share Task</string>
+    <string name="send_report">Send Task Report Via</string>
 
 
 </resources>

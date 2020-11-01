@@ -76,6 +76,7 @@ public class TaskFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
         mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
         mRepositoryUser = TaskManagerDBRepository.getInstance(getActivity());
         mTasks = mRepositoryTask.getTaskList();
@@ -167,7 +168,7 @@ public class TaskFragment extends Fragment {
 
     }
 
-    private void setListTask() {
+    public void setListTask() {
         if (mAdapter == null) {
             mViewPager.setAdapter(createCardAdapter());
             new TabLayoutMediator(mTabLayout, mViewPager, new TabLayoutMediator.TabConfigurationStrategy() {

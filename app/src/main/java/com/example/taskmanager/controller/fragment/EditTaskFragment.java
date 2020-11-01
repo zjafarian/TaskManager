@@ -37,8 +37,8 @@ public class EditTaskFragment extends DialogFragment {
     public static final int REQUEST_CODE_TIME_EDIT = 1;
     public static final String ARGS_TASK_ID = "TaskId";
     public static final String EXTRA_SEND_STATE = "com.example.taskmanager.sendState";
-    public static final String EXTRA_SEND_TASK_ID = "com.example.taskmanager.sendTaskId";
     public static final String EXTRA_SEND_CHECK_DELETE = "com.example.taskmanager.sendCheckDelete";
+    public static final String EXTRA_SEND_STATE_DELETE = "com.example.taskmanager.send_state_delete";
     private Task mTask;
     private IRepositoryTask mRepositoryTask;
     private TextInputEditText mTextTitleEdit;
@@ -57,6 +57,8 @@ public class EditTaskFragment extends DialogFragment {
     private Date mDateNew = new Date();
     private State mState;
     private boolean mCheckDelete = false;
+    private State mStateDelete;
+    private Button mBtnShare;
 
 
     public EditTaskFragment() {
@@ -110,6 +112,7 @@ public class EditTaskFragment extends DialogFragment {
                 .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mStateDelete = mTask.getStateTask();
                         mRepositoryTask.deleteTask(mTask);
                         mCheckDelete = true;
                         sendResult();
@@ -135,8 +138,8 @@ public class EditTaskFragment extends DialogFragment {
         int resultCode = Activity.RESULT_OK;
         Intent intent = new Intent();
         intent.putExtra(EXTRA_SEND_STATE, mState);
-        intent.putExtra(EXTRA_SEND_TASK_ID, mTaskId);
-        intent.putExtra(EXTRA_SEND_CHECK_DELETE,mCheckDelete);
+        intent.putExtra(EXTRA_SEND_CHECK_DELETE, mCheckDelete);
+        intent.putExtra(EXTRA_SEND_STATE_DELETE, mStateDelete);
         fragment.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -192,7 +195,46 @@ public class EditTaskFragment extends DialogFragment {
                 mState = State.Todo;
             }
         });
+        mBtnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareReportIntent();
 
+            }
+        });
+
+    }
+
+    private void shareReportIntent() {
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getReport());
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.task_share_subject));
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent =
+                Intent.createChooser(sendIntent, getString(R.string.send_report));
+
+        //we prevent app from crash if the intent has no destination.
+        if (sendIntent.resolveActivity(getActivity().getPackageManager()) != null)
+            startActivity(shareIntent);
+    }
+
+    private String getReport() {
+        String report;
+        String title = mTextTitleEdit.getText().toString();
+        String description = mTextDescriptionEdit.getText().toString();
+        String state = "";
+        if (mRdBtnDoingEdit.isChecked())
+            state = "Doing";
+        else if (mRdBtnDoneEdit.isChecked())
+            state = "Done";
+        else if (mRdBtnTodoEdit.isChecked())
+            state = "Todo";
+        String date = mBtnDate.getText().toString();
+        String time = mBtnTime.getText().toString();
+        report = "Your Task is \n" + "Title: " + title + "\n" + "Description: " + description
+                + "\n" + "Date: " + date + ":" + time + "\n" + "State: " + state;
+        return report;
     }
 
     private void setViews(View view) {
@@ -205,6 +247,7 @@ public class EditTaskFragment extends DialogFragment {
         mRdBtnDoneEdit = view.findViewById(R.id.rd_btn_done_edit);
         mRdBtnTodoEdit = view.findViewById(R.id.rd_btn_todo_edit);
         mBtnEdit = view.findViewById(R.id.btn_task_edit);
+        mBtnShare = view.findViewById(R.id.btn_share);
     }
 
     private void initViews() {
@@ -230,6 +273,7 @@ public class EditTaskFragment extends DialogFragment {
                 mRdBtnTodoEdit.setChecked(true);
                 break;
         }
+        mState = mTask.getStateTask();
         setEnable(false);
 
     }

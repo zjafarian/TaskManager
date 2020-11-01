@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -58,6 +59,7 @@ public class TaskListFragment extends Fragment {
     private List<User> mUsers;
     private Task mTask;
     private State mStateBefore;
+    private CallBacks mCallBacks;
 
     public TaskListFragment() {
         // Required empty public constructor
@@ -71,6 +73,17 @@ public class TaskListFragment extends Fragment {
         args.putSerializable(ARGS_USER_ID, uuid);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof CallBacks)
+            mCallBacks = (CallBacks) context;
+        else {
+            throw new ClassCastException(context.toString()
+                    + " must implement Callbacks");
+        }
     }
 
     @Override
@@ -98,6 +111,18 @@ public class TaskListFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mUser.getUsername().equals("admin") && mUser.getPassword().equals("admin")){
+            mTasks=mRepositoryTask.getTaskList();
+            selectAdminOrUser();
+            initViews();
+        }
+
+
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.menu_list_task, menu);
         MenuItem itemSearch = menu.findItem(R.id.app_bar_search);
@@ -114,8 +139,6 @@ public class TaskListFragment extends Fragment {
                 return false;
             }
         });
-
-
 
 
     }
@@ -204,6 +227,7 @@ public class TaskListFragment extends Fragment {
         private TextView mDateTask;
         private Button mBtnTask;
         private Task mTaskHolder;
+
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
@@ -318,9 +342,6 @@ public class TaskListFragment extends Fragment {
 
     }
 
-    private void updateTask() {
-        mRepositoryTask.updateTask(mTask);
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -330,27 +351,32 @@ public class TaskListFragment extends Fragment {
 
 
         if (requestCode == REQUEST_CODE_EDIT) {
-            UUID idTask;
             boolean check = data.getBooleanExtra(EditTaskFragment.EXTRA_SEND_CHECK_DELETE,
                     false);
-            if (!check) {
-                idTask = (UUID) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_TASK_ID);
-                for (Task taskFind : mTasks) {
-                    if (taskFind.getIdTask().equals(idTask))
-                        mTask = taskFind;
-
-                }
-                mTasks = mRepositoryTask.getTaskList();
-                requestEditTask();
-
-            } else {
-                mTasks = mRepositoryTask.getTaskList();
+            mTasks = mRepositoryTask.getTaskList();
+            if (check) {
+                State state = (State) data.getSerializableExtra
+                        (EditTaskFragment.EXTRA_SEND_STATE_DELETE);
                 mTasksTodo.clear();
                 mTasksDoing.clear();
                 mTasksDone.clear();
                 selectAdminOrUser();
-                setAdapterTaskBefore();
-                mTaskAdapter.notifyDataSetChanged();
+                requestEditTask(state);
+
+            } else {
+                State state = (State) data.getSerializableExtra(EditTaskFragment.EXTRA_SEND_STATE);
+                mTasksTodo.clear();
+                mTasksDoing.clear();
+                mTasksDone.clear();
+                selectAdminOrUser();
+                if (mStateBefore.equals(state)) {
+                    requestEditTask(state);
+                } else {
+                    requestEditTask(state);
+                    setAdapterTaskBefore();
+                    mCallBacks.updateAdapterPager();
+                }
+
 
             }
 
@@ -360,13 +386,9 @@ public class TaskListFragment extends Fragment {
 
     }
 
-    private void requestEditTask() {
-        mTasksTodo.clear();
-        mTasksDoing.clear();
-        mTasksDone.clear();
-        selectAdminOrUser();
-        setAdapterTaskBefore();
-        switch (mTask.getStateTask()) {
+    private void requestEditTask(State state) {
+
+        switch (state) {
             case Todo:
                 mTaskAdapter.setTasksAdapter(mTasksTodo);
                 break;
@@ -392,5 +414,9 @@ public class TaskListFragment extends Fragment {
                 mTaskAdapter.setTasksAdapter(mTasksDoing);
                 break;
         }
+    }
+
+    public interface CallBacks {
+        void updateAdapterPager();
     }
 }
