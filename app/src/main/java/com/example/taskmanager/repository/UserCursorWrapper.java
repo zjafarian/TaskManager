@@ -23,6 +23,7 @@ public class UserCursorWrapper extends CursorWrapper {
         UUID uuid = UUID.fromString(getString(getColumnIndex(userCols.userUUID)));
         String userName = getString(getColumnIndex(userCols.userName));
         String password = getString(getColumnIndex(userCols.password));
+        String date = getString(getColumnIndex(userCols.dateRegister));
         return new User(userName,password);
     }
 }

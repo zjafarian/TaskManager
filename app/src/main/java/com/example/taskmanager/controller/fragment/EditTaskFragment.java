@@ -5,15 +5,19 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -22,8 +26,10 @@ import com.example.taskmanager.model.State;
 import com.example.taskmanager.model.Task;
 import com.example.taskmanager.repository.IRepositoryTask;
 import com.example.taskmanager.repository.TaskManagerDBRepository;
+import com.example.taskmanager.utils.PictureUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,10 +41,14 @@ public class EditTaskFragment extends DialogFragment {
     public static final String TIME_PICKER_EDIT = "timePickerEdit";
     public static final int REQUEST_CODE_DATE_EDIT = 0;
     public static final int REQUEST_CODE_TIME_EDIT = 1;
+    public static final int REQUEST_CODE_SELECT_IMAGE = 2;
     public static final String ARGS_TASK_ID = "TaskId";
     public static final String EXTRA_SEND_STATE = "com.example.taskmanager.sendState";
     public static final String EXTRA_SEND_CHECK_DELETE = "com.example.taskmanager.sendCheckDelete";
-    public static final String EXTRA_SEND_STATE_DELETE = "com.example.taskmanager.send_state_delete";
+    public static final String EXTRA_SEND_STATE_DELETE =
+            "com.example.taskmanager.send_state_delete";
+    public static final String AUTHORITY = "com.example.taskmanager.fileProvider";
+    public static final String SELECT_IMAGE_TAG = "SelectImage";
     private Task mTask;
     private IRepositoryTask mRepositoryTask;
     private TextInputEditText mTextTitleEdit;
@@ -59,6 +69,9 @@ public class EditTaskFragment extends DialogFragment {
     private boolean mCheckDelete = false;
     private State mStateDelete;
     private Button mBtnShare;
+    private Button mButtonImageTask;
+    private ImageView mImageViewTask;
+    private File mPhotoFile;
 
 
     public EditTaskFragment() {
@@ -87,6 +100,7 @@ public class EditTaskFragment extends DialogFragment {
                 mTask = taskFind;
         }
         mDateNew = setCalender();
+        mPhotoFile = mRepositoryTask.getPhotoFile(mTask);
     }
 
     @NonNull
@@ -203,6 +217,20 @@ public class EditTaskFragment extends DialogFragment {
             }
         });
 
+        mButtonImageTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SelectImageFragment selectImageFragment =
+                        SelectImageFragment.newInstance(mTask.getIdTask());
+                selectImageFragment.setTargetFragment
+                        (EditTaskFragment.this, REQUEST_CODE_SELECT_IMAGE);
+                selectImageFragment.show(
+                        getActivity().
+                                getSupportFragmentManager(),
+                        SELECT_IMAGE_TAG);
+            }
+        });
+
     }
 
     private void shareReportIntent() {
@@ -248,6 +276,8 @@ public class EditTaskFragment extends DialogFragment {
         mRdBtnTodoEdit = view.findViewById(R.id.rd_btn_todo_edit);
         mBtnEdit = view.findViewById(R.id.btn_task_edit);
         mBtnShare = view.findViewById(R.id.btn_share);
+        mButtonImageTask = view.findViewById(R.id.btn_take_image_edit);
+        mImageViewTask = view.findViewById(R.id.img_view_task_edit);
     }
 
     private void initViews() {
@@ -274,6 +304,8 @@ public class EditTaskFragment extends DialogFragment {
                 break;
         }
         mState = mTask.getStateTask();
+
+        updatePhotoView();
         setEnable(false);
 
     }
@@ -287,6 +319,7 @@ public class EditTaskFragment extends DialogFragment {
             mRdBtnTodoEdit.setEnabled(false);
             mRdBtnDoneEdit.setEnabled(false);
             mRdBtnDoingEdit.setEnabled(false);
+            mButtonImageTask.setEnabled(false);
         } else {
             mTextTitleEdit.setEnabled(true);
             mTextDescriptionEdit.setEnabled(true);
@@ -295,6 +328,7 @@ public class EditTaskFragment extends DialogFragment {
             mRdBtnTodoEdit.setEnabled(true);
             mRdBtnDoneEdit.setEnabled(true);
             mRdBtnDoingEdit.setEnabled(true);
+            mButtonImageTask.setEnabled(true);
         }
     }
 
@@ -311,6 +345,20 @@ public class EditTaskFragment extends DialogFragment {
             mTime = (Date) data.getSerializableExtra(TimeFragment.EXTRA_USER_SELECTED_TIME);
             updateDateTask(mTime);
             mTime = setCalender();
+        }
+        if (requestCode==REQUEST_CODE_SELECT_IMAGE){
+            mPhotoFile = mRepositoryTask.getPhotoFile(mTask);
+            boolean check = data.getBooleanExtra
+                    (SelectImageFragment.EXTRA_SEND_CHECK_DEVICE_OR_CAMERA, false);
+            if (check) {
+                Uri photoUri = generateUriForPhotoFile();
+                getActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                updatePhotoView();
+            } else {
+                Uri uri = data.getParcelableExtra(SelectImageFragment.EXTRA_SEND_URI_IMAGE);
+                getActivity().revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                mImageViewTask.setImageURI(uri);
+            }
         }
 
     }
@@ -346,6 +394,23 @@ public class EditTaskFragment extends DialogFragment {
         calendar.set(Calendar.MINUTE, minute);
 
         return calendar.getTime();
+    }
+
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists())
+            return;
+
+        //this has a better memory management.
+        Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getAbsolutePath(), getActivity());
+        mImageViewTask.setImageBitmap(bitmap);
+    }
+
+    private Uri generateUriForPhotoFile() {
+        return FileProvider.getUriForFile(
+                getContext(),
+                AUTHORITY,
+                mPhotoFile);
     }
 
 }

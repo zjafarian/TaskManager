@@ -12,6 +12,8 @@ public class TaskManagerSchema {
             public static final String userUUID = "uuidUser";
             public static final String userName = "userName";
             public static final String password = "password";
+            public static final String dateRegister = "dateRegister";
+
 
         }
     }
@@ -28,6 +30,9 @@ public class TaskManagerSchema {
             public static final String description = "descriptionTask";
             public static final String date = "dateTask";
             public static final String state = "stateTask";
+            public static final String addressImage = "addressImage";
+            public static final String uriImage = "uriImage";
+
         }
     }
 }

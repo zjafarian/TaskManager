@@ -5,36 +5,51 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.taskmanager.R;
 import com.example.taskmanager.model.State;
+import com.example.taskmanager.model.Task;
+import com.example.taskmanager.repository.IRepositoryTask;
+import com.example.taskmanager.repository.TaskManagerDBRepository;
+import com.example.taskmanager.utils.PictureUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
 
 public class CreateTaskFragment extends DialogFragment {
 
-    public static final String ARGS_ID_USER = "argsIdUser";
     public static final int REQUEST_CODE_DATE_CREATE = 0;
     public static final String DATE_PICKER_CREATE = "datePickerCreate";
     public static final int REQUEST_CODE_TIME_CREATE = 1;
+
     public static final String TIME_PICKER_CREATE = "timePickerCreate";
+    public static final String AUTHORITY = "com.example.taskmanager.fileProvider";
     public static final String EXTRA_SEND_TITLE = "com.example.taskmanager.send title";
     public static final String EXTRA_SEND_DESCRIPTION = "com.example.taskmanager.send description";
     public static final String EXTRA_SEND_STATE = "com.example.taskmanager.send state";
     public static final String EXTRA_SEND_DATE = "com.example.taskmanager.send date";
+
+    public static final String EXTRA_TASK_ID = "com.example.taskmanager.TaskId";
+    public static final int REQUEST_CODE_SELECT_IMAGE = 2;
+    public static final String SELECT_IMAGE_TAG = "SelectImage";
+    public static final String EXTRA_SEND_URI = "com.example.taskmanager.sendUri";
     private TextInputEditText mTextTitleCreate;
     private TextInputEditText mTextDescriptionCreate;
     private Button mButtonDateCreate;
@@ -46,6 +61,13 @@ public class CreateTaskFragment extends DialogFragment {
     private Date mDateNew = new Date();
     private String mTitle;
     private String mDescription;
+    private ImageView mImageViewTask;
+    private Button mBtnTakePhoto;
+    private File mPhotoFile;
+    private IRepositoryTask mRepositoryTask;
+    private String mPhotoUri;
+    private Task mTask = new Task();
+    private Uri mUri;
 
 
     public CreateTaskFragment() {
@@ -55,6 +77,7 @@ public class CreateTaskFragment extends DialogFragment {
     public static CreateTaskFragment newInstance() {
         CreateTaskFragment fragment = new CreateTaskFragment();
         Bundle args = new Bundle();
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,6 +85,10 @@ public class CreateTaskFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mRepositoryTask = TaskManagerDBRepository.getInstance(getActivity());
+
+        mRepositoryTask.insertTask(mTask);
+
 
     }
 
@@ -97,10 +124,12 @@ public class CreateTaskFragment extends DialogFragment {
         int requestCode = getTargetRequestCode();
         int resultCode = Activity.RESULT_OK;
         Intent intent = new Intent();
+        intent.putExtra(EXTRA_TASK_ID, mTask.getIdTask());
         intent.putExtra(EXTRA_SEND_TITLE, mTitle);
         intent.putExtra(EXTRA_SEND_DESCRIPTION, mDescription);
         intent.putExtra(EXTRA_SEND_STATE, mStateTask);
         intent.putExtra(EXTRA_SEND_DATE, mDateNew);
+        intent.putExtra(EXTRA_SEND_URI,mUri);
         fragment.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -116,12 +145,8 @@ public class CreateTaskFragment extends DialogFragment {
                 mStateTask = State.Todo;
                 break;
         }
-
         mTitle = mTextTitleCreate.getText().toString();
         mDescription = mTextDescriptionCreate.getText().toString();
-        /*Task task = new Task(mTitle,mDescription,mStateTask,mUserId);
-        task.setDateTask(mDateNew);
-        mIRepositoryTask.insertTask(task);*/
     }
 
     private void setListener() {
@@ -141,7 +166,23 @@ public class CreateTaskFragment extends DialogFragment {
                 TimeFragment timeFragment = TimeFragment.newInstance(mDate);
                 timeFragment.setTargetFragment
                         (CreateTaskFragment.this, REQUEST_CODE_TIME_CREATE);
-                timeFragment.show(getActivity().getSupportFragmentManager(), TIME_PICKER_CREATE);
+                timeFragment.show(
+                        getActivity().getSupportFragmentManager(), TIME_PICKER_CREATE);
+            }
+        });
+
+        mBtnTakePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SelectImageFragment selectImageFragment =
+                        SelectImageFragment.newInstance(mTask.getIdTask());
+                selectImageFragment.setTargetFragment
+                        (CreateTaskFragment.this, REQUEST_CODE_SELECT_IMAGE);
+                selectImageFragment.show(
+                        getActivity().
+                                getSupportFragmentManager(),
+                        SELECT_IMAGE_TAG);
+
             }
         });
 
@@ -154,6 +195,8 @@ public class CreateTaskFragment extends DialogFragment {
         mButtonDateCreate = view.findViewById(R.id.btn_date_create);
         mButtonTimeCreate = view.findViewById(R.id.btn_time_create);
         mRadioGroupCreate = view.findViewById(R.id.radio_group_create);
+        mBtnTakePhoto = view.findViewById(R.id.btn_take_image_create);
+        mImageViewTask = view.findViewById(R.id.img_view_task_create);
     }
 
     @Override
@@ -172,6 +215,30 @@ public class CreateTaskFragment extends DialogFragment {
         }
         mDateNew = setCalender();
 
+        if (requestCode == REQUEST_CODE_SELECT_IMAGE) {
+            mPhotoFile = mRepositoryTask.getPhotoFile(mTask);
+            boolean check = data.getBooleanExtra
+                    (SelectImageFragment.EXTRA_SEND_CHECK_DEVICE_OR_CAMERA, false);
+            if (check) {
+                Uri photoUri = generateUriForPhotoFile();
+                getActivity().revokeUriPermission(photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                updatePhotoView();
+            } else {
+                mUri = data.getParcelableExtra(SelectImageFragment.EXTRA_SEND_URI_IMAGE);
+                mImageViewTask.setImageURI(mUri);
+
+            }
+        }
+    }
+
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists())
+            return;
+
+        //this has a better memory management.
+        Bitmap bitmap = PictureUtils.getScaledBitmap(mPhotoFile.getAbsolutePath(), getActivity());
+        mImageViewTask.setImageBitmap(bitmap);
     }
 
     private Date setCalender() {
@@ -209,5 +276,14 @@ public class CreateTaskFragment extends DialogFragment {
         int second = calendar.get(Calendar.SECOND);
         mButtonTimeCreate.setText(hour + ":" + minute + ":" + second);
     }
+
+
+    private Uri generateUriForPhotoFile() {
+        return FileProvider.getUriForFile(
+                getContext(),
+                AUTHORITY,
+                mPhotoFile);
+    }
+
 
 }

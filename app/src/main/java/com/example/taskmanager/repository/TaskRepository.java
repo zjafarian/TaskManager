@@ -2,6 +2,7 @@ package com.example.taskmanager.repository;
 
 import com.example.taskmanager.model.Task;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +30,11 @@ public class TaskRepository implements IRepositoryTask {
 
     @Override
     public Task getTaskUser(UUID idUser) {
+        return null;
+    }
+
+    @Override
+    public File getPhotoFile(Task task) {
         return null;
     }
 

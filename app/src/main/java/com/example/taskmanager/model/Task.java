@@ -1,5 +1,7 @@
 package com.example.taskmanager.model;
 
+import android.net.Uri;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -34,8 +36,23 @@ public class Task {
     @ColumnInfo(name = "dateTask")
     private Date mDateTask = new Date();
 
+    @ColumnInfo(name = "photo")
+    private String mFilePhoto;
+
+    @ColumnInfo
+    private Uri mUri;
+
+
+
 
     public Task() {
+        mIdTask = UUID.randomUUID();
+        mIdUser = UUID.randomUUID();
+        mTitleTask = "";
+        mStateTask = State.Todo;
+        mDescription = "";
+        mFilePhoto = "";
+        mUri = Uri.parse(mFilePhoto);
     }
 
     public Task(String title, String description, State stateTask, UUID idUser) {
@@ -45,6 +62,8 @@ public class Task {
         mStateTask = stateTask;
         mDescription = description;
     }
+
+
 
 
     public int getId() {
@@ -111,10 +130,19 @@ public class Task {
         mTitleTask = titleTask;
     }
 
-    private State generateRandomState() {
-        State[] states = State.values();
-        int length = states.length - 1;
-        int rndIndex = (int) (Math.random() * (length - 0 + 1) + 0);
-        return states[rndIndex];
+    public String getFilePhoto() {
+        return "IMG_" + getIdTask().toString() + ".jpg";
+    }
+
+    public void setFilePhoto(String filePhoto) {
+        mFilePhoto = filePhoto;
+    }
+
+    public Uri getUri() {
+        return mUri;
+    }
+
+    public void setUri(Uri uri) {
+        mUri = uri;
     }
 }

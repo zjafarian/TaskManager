@@ -1,6 +1,7 @@
 package com.example.taskmanager.controller.fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -164,6 +165,7 @@ public class TaskFragment extends Fragment {
         userName = mUser.getUsername();
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setTitle(mUser.getUsername());
+        mTasks = mRepositoryTask.getTaskList();
         setListTask();
 
     }
@@ -171,7 +173,8 @@ public class TaskFragment extends Fragment {
     public void setListTask() {
         if (mAdapter == null) {
             mViewPager.setAdapter(createCardAdapter());
-            new TabLayoutMediator(mTabLayout, mViewPager, new TabLayoutMediator.TabConfigurationStrategy() {
+            new TabLayoutMediator(mTabLayout, mViewPager,
+                    new TabLayoutMediator.TabConfigurationStrategy() {
                 @Override
                 public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                     String nameTab = String.valueOf(mStates.get(position));
@@ -221,9 +224,19 @@ public class TaskFragment extends Fragment {
             String description = data.getStringExtra(CreateTaskFragment.EXTRA_SEND_DESCRIPTION);
             State state = (State) data.getSerializableExtra(CreateTaskFragment.EXTRA_SEND_STATE);
             Date date = (Date) data.getSerializableExtra(CreateTaskFragment.EXTRA_SEND_DATE);
-            Task task = new Task(title, description, state, mIdUser);
+            UUID uuid = (UUID) data.getSerializableExtra(CreateTaskFragment.EXTRA_TASK_ID);
+            Uri uri = data.getParcelableExtra(CreateTaskFragment.EXTRA_SEND_URI);
+
+            Task task = mRepositoryTask.getTask(uuid);
+            task.setTitleTask(title);
+            task.setDescription(description);
+            task.setIdUser(mIdUser);
             task.setDateTask(date);
-            mRepositoryTask.insertTask(task);
+            task.setStateTask(state);
+            if (uri!=null){
+                task.setUri(uri);
+            }
+            mRepositoryTask.updateTask(task);
             mTasks = mRepositoryTask.getTaskList();
             setListTask();
 
@@ -233,7 +246,6 @@ public class TaskFragment extends Fragment {
             if (check) {
                 mTasks = mRepositoryTask.getTaskList();
                 setListTask();
-
             }
         } else if (requestCode== REQUEST_CODE_SHOW_USERS){
             mTasks = mRepositoryTask.getTaskList();

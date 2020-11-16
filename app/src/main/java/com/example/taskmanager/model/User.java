@@ -24,6 +24,9 @@ public class User {
     @ColumnInfo(name ="dateSignUp")
     private Date mDate;
 
+    @ColumnInfo(name = "addressImage")
+    private String mAddressImage;
+
     public User() {
     }
 
@@ -72,6 +75,14 @@ public class User {
 
     public void setIDUser(UUID IDUser) {
         mIDUser = IDUser;
+    }
+
+    public String getAddressImage() {
+        return mAddressImage;
+    }
+
+    public void setAddressImage(String addressImage) {
+        mAddressImage = addressImage;
     }
 
 

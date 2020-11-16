@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".controller.fragment.SelectImageFragment">
+
+    <ImageButton
+        android:id="@+id/img_btn_device"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:background="?attr/actionBarItemBackground"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/ic_storage" />
+
+    <Button
+        android:id="@+id/btn_select_device"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/img_btn_device"
+        android:text="@string/select_device"
+        android:textColor="@color/material_on_background_emphasis_medium"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeColor="#FFFFFF" />
+
+    <ImageButton
+        android:id="@+id/img_btn_camera"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/img_btn_device"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:background="?attr/selectableItemBackground"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/ic_camera" />
+
+    <Button
+        android:id="@+id/btn_select_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/img_btn_device"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_toEndOf="@+id/img_btn_camera"
+        android:layout_toRightOf="@+id/img_btn_camera"
+        android:text="@string/select_camera"
+        android:textColor="@color/material_on_background_emphasis_medium"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeColor="#FFFFFF" />
+</RelativeLayout>

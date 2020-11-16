@@ -2,6 +2,7 @@ package com.example.taskmanager.repository;
 
 import com.example.taskmanager.model.Task;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,4 +14,5 @@ public interface IRepositoryTask  {
     int getPosition (UUID taskId);
     List<Task> getTaskList();
     Task getTaskUser (UUID idUser);
+    File getPhotoFile(Task task);
 }

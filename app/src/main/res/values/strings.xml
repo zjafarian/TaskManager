@@ -36,6 +36,9 @@
     <string name="share_task">Share Task</string>
     <string name="task_share_subject">Share Task</string>
     <string name="send_report">Send Task Report Via</string>
+    <string name="take_image">Take Image</string>
+    <string name="select_device">Open from Device</string>
+    <string name="select_camera">Camera</string>
 
 
 </resources>
